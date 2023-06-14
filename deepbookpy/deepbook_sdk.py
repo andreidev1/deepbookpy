@@ -22,14 +22,14 @@ class SmartRouteResultWithExactPath:
 class DeepBookSDK:
 
     provider: SuiClient
-    current_address: str
+    current_address: str #SuiClient
     gas_budget: int
     records: Records
 
     def __init__(
             self,
             provider: SuiClient,
-            current_address: str,
+            current_address: str, # SuiClient, # SuiAddress
             gas_budget: int,
             records: Records
             ):
@@ -68,12 +68,32 @@ class DeepBookSDK:
 
         txer.move_call(
 
-            target="dee9::clob::create_pool",
+            target = "dee9::clob::create_pool",
 
-            arguments= [ticket_size, lot_size, splits],
+            arguments = [ticket_size, lot_size, splits],
 
             type_arguments = [token_1, token_2]
     )
         return txer
     
-    # async def create_account
+    async def create_account(self, current_address) -> SuiTransaction:
+        
+        txer = SuiTransaction(client)
+
+        cap: list = txer.move_call(
+
+            target = "dee9::clob::create_account",
+
+            arguments = [],
+
+            type_arguments = []
+
+        )
+
+        txer.transfer_objects(
+            transfers=[cap],
+            recipient=current_address
+
+        )
+
+        return txer
