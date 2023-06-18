@@ -101,6 +101,9 @@ class DeepBookQuery:
         #return InspectTransaction(sender_address=self.current_address, tx_bytes=txer)
         return txer.inspect_all()
     
+    # def get_usr_position
+    # def list_open_orders
+    # def get_level2_book_status
 deep = DeepBookQuery(cfg.rpc_url, SuiAddress("0xffd8243510abac793771d998950d08d7a3ec6ad8f39d8e06b7b73687a93de2b9"))
 
 print(deep.get_market_price(
