@@ -5,7 +5,7 @@ from pysui.sui.sui_clients.sync_client import SuiClient
 from pysui.sui.sui_clients.transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID
 from pysui.sui.sui_types.address import SuiAddress
-# from pysui.sui.sui.builders.exec_builders import InspectTransaction
+from pysui.sui.sui_builders.exec_builders import InspectTransaction
 
 from utils.config import client, address, cfg
 
@@ -77,9 +77,38 @@ class DeepBookQuery:
         #return txer.inspect_all()
         return print(txer)
     
+    def get_market_price(
+            self,
+            token_1,
+            token_2,
+            pool_id
+    ):
 
+
+        txer = SuiTransaction(client)
+
+        txer.move_call(
+
+            target="0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931::clob::get_market_price",
+
+            arguments= [
+                ObjectID(pool_id),
+                ],
+
+            type_arguments = [token_1, token_2]
+    )
+        
+        #return InspectTransaction(sender_address=self.current_address, tx_bytes=txer)
+        return txer.inspect_all()
+    
 deep = DeepBookQuery(cfg.rpc_url, SuiAddress("0xffd8243510abac793771d998950d08d7a3ec6ad8f39d8e06b7b73687a93de2b9"))
 
+print(deep.get_market_price(
+    token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
+    token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
+    pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
+))
+'''
 deep.get_order_status(
     token_1 = "0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a",
     token_2 = "0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a",
@@ -88,4 +117,5 @@ deep.get_order_status(
     account_cap="0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3"
 
 )
+'''
 # ValueError: Unable to find target: dee9::clob::get_order_status
