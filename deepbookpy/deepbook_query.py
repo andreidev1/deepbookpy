@@ -72,8 +72,7 @@ class DeepBookQuery:
             token_2: str,
             pool_id: str
     ) -> InspectTransaction:
-       
-       """
+        """
        Get Market Price
 
        :param token_1:
@@ -86,7 +85,7 @@ class DeepBookQuery:
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
         """
         txer = SuiTransaction(client)
-
+       
         txer.move_call(
 
             target=f"{self.package_id}::clob::get_market_price",
