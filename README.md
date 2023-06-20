@@ -2,6 +2,11 @@
 
 Building with [pysui:p2050](https://github.com/FrankC01/pysui/tree/p0250) for simpler user configuration.
 
+## Deepbook Sources
+
+[Official Sui Deepbook Website](https://sui-deepbook.com/)
+
+[Official Sui Deepbook Documentation](https://docs.sui-deepbook.com/)
 
 # Python DeepBook SDK Parameters
 ```py
