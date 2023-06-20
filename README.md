@@ -4,7 +4,7 @@ Building with [pysui:p2050](https://github.com/FrankC01/pysui/tree/p0250) for si
 
 ## Python DeepBook SDK Parameters
 ```py
-from utils.normalizer import normalize_sui_object_id
+from deepbookpy.utils.normalizer import normalize_sui_object_id
 
 DEEPBOOK_PACKAGE_ID = "https://explorer.sui.io/object/0x000000000000000000000000000000000000000000000000000000000000dee9"
 
