@@ -4,9 +4,9 @@ Building with [pysui:p2050](https://github.com/FrankC01/pysui/tree/p0250) for si
 
 ## Deepbook Sources
 
-[Official Sui Deepbook Website](https://sui-deepbook.com/)
+[Official Deepbook Sui Website](https://sui-deepbook.com/)
 
-[Official Sui Deepbook Documentation](https://docs.sui-deepbook.com/)
+[Official Deepbook Sui Documentation](https://docs.sui-deepbook.com/)
 
 # Python DeepBook SDK Parameters
 ```py
