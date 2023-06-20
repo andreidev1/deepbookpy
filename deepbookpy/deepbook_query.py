@@ -38,13 +38,13 @@ class DeepBookQuery:
             token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
-            the pool id, eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
         
         :param order_id:
             the order id, eg: 1
 
         :param account_cap: 
-            the accountCap, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+            objectId of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
         
         """
 
@@ -72,8 +72,19 @@ class DeepBookQuery:
             token_2: str,
             pool_id: str
     ) -> InspectTransaction:
+       
+       """
+       Get Market Price
 
+       :param token_1:
+            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        
+        :param token_2:
+            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
+        :param pool_id: 
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        """
         txer = SuiTransaction(client)
 
         txer.move_call(
@@ -92,7 +103,22 @@ class DeepBookQuery:
     
 
     def get_usr_position(self, token_1: str, token_2: str, pool_id: str, account_cap: str) -> InspectTransaction :
-        """Get the base and quote token in custodian account"""
+        """
+        Get the base and quote token in custodian account
+        
+        :param token_1:
+            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        
+        :param token_2:
+            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+
+        :param pool_id: 
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        
+        :param account_cap: 
+            object id of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+
+        """
 
         txer = SuiTransaction(client)
 
@@ -113,7 +139,21 @@ class DeepBookQuery:
     
 
     def list_open_orders(self, token_1: str, token_2: str, pool_id: str, account_cap: str) -> InspectTransaction:
-        """Get the open orders of the current user"""
+        """
+        Get the open orders of the current user
+        
+        :param token_1:
+            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        
+        :param token_2:
+            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+
+        :param pool_id: 
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        
+        :param account_cap: 
+            object id of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+        """
         
         txer = SuiTransaction(client)
 
@@ -133,9 +173,28 @@ class DeepBookQuery:
         return txer.inspect_all()
     
     
-    def get_level2_book_status(self, token_1, token_2, pool_id, lower_price: int, higher_price: int, is_bide_size: bool) -> InspectTransaction:
-        """Get level2 book status
-        is_bid_side true: query bid side, false: query ask side
+    def get_level2_book_status(self, token_1: str, token_2: str, pool_id: str, lower_price: int, higher_price: int, is_bide_size: bool) -> InspectTransaction:
+        """
+        Get level2 book status
+
+        :param token_1:
+            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        
+        :param token_2:
+            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+
+        :param pool_id: 
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        
+        :param lower_price:
+            lower price you want to query in the level2 book, eg: 18000000000
+
+        :param higher_price:
+            higher price you want to query in the level2 book, eg: 20000000000
+        
+        :param is_bid_side:
+            is_bid_side true: query bid side, false: query ask side
+        
         """
 
         txer = SuiTransaction(client)
@@ -173,12 +232,12 @@ deep.get_order_status(
 )
 '''
 
-
 print(deep.get_market_price(
     token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
     token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
     pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
 ))
+
 
 print('----')
 
@@ -210,3 +269,4 @@ print(deep.get_level2_book_status(
 
 ))
 print('----')
+''''''
