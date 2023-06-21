@@ -98,4 +98,4 @@ else:
     print(tx_result.result_string)
 ```
 
-**_NOTE:_**  At this moment deepbook is under development and you might experiencing issues with `dee6` package. Additionally you can use this `0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931` address as package id.
+**_NOTE:_**  At this moment deepbook is under development and you might experience issues with `dee6` package. Additionally you can use this `0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931` address as package id.
