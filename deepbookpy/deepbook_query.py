@@ -6,19 +6,17 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64
 from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_builders.exec_builders import InspectTransaction
 
-
-from utils.config import cfg, client
 from utils.normalizer import normalize_sui_object_id
 
 
-
 class DeepBookQuery:
-    """Deepbook query"""
+    """Query DeepBook Package"""
 
-    def __init__(self, provider: SuiClient, current_address: SuiAddress, package_id: str):
-        self.provider = provider
-        self.current_address = current_address
+
+    def __init__(self, client: SuiClient, package_id: str):
+        self.client = client
         self.package_id = package_id
+
 
     def get_order_status(
         self,
@@ -48,7 +46,7 @@ class DeepBookQuery:
         
         """
 
-        txer = SuiTransaction(client)
+        txer = SuiTransaction(self.client)
 
         txer.move_call(
 
@@ -84,7 +82,7 @@ class DeepBookQuery:
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
         """
-        txer = SuiTransaction(client)
+        txer = SuiTransaction(self.client)
        
         txer.move_call(
 
@@ -119,7 +117,7 @@ class DeepBookQuery:
 
         """
 
-        txer = SuiTransaction(client)
+        txer = SuiTransaction(self.client)
 
         txer.move_call(
 
@@ -154,7 +152,7 @@ class DeepBookQuery:
             object id of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
         """
         
-        txer = SuiTransaction(client)
+        txer = SuiTransaction(self.client)
 
         txer.move_call(
 
@@ -196,7 +194,7 @@ class DeepBookQuery:
         
         """
 
-        txer = SuiTransaction(client)
+        txer = SuiTransaction(self.client)
 
         txer.move_call(
     
@@ -215,57 +213,3 @@ class DeepBookQuery:
 
         return txer.inspect_all()
     
-
-deep = DeepBookQuery(provider= cfg.rpc_url,
-                     current_address = SuiAddress(cfg.addresses[0]),
-                     package_id="0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931"
-                     )
-'''
-deep.get_order_status(
-    token_1 = "0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a",
-    token_2 = "0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a",
-    pool_id = "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4",
-    order_id = 1,
-    account_cap="0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3"
-
-)
-'''
-
-print(deep.get_market_price(
-    token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-    token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-    pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
-))
-
-
-print('----')
-
-print(deep.get_usr_position(
-    token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-    token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-    pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4",
-    account_cap="0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3"
-))
-
-
-print('----')
-print(deep.list_open_orders(
-    token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-    token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-    pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4",
-    account_cap="0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3"
-))
-
-
-print('----')
-print(deep.get_level2_book_status(
-    token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-    token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-    pool_id="0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4",
-    lower_price=18000000000,
-    higher_price=20000000000,
-    is_bide_size=False
-
-))
-print('----')
-''''''
