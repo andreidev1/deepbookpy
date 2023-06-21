@@ -24,6 +24,7 @@ def cfg_user():
 
 cfg = cfg_user()
 client = SuiClient(cfg)
+my_sui_address = cfg.addresses[0]
 ```
 
 ## DeepBook Package ID
@@ -42,9 +43,9 @@ In order to query the deepbook package you have to instantiate `DeepBookQuery` c
 ```py
 from deepbookpy.deepbook_query import DeepBookQuery
 
+
 deepbook_query = DeepBookQuery(
-    provider=cfg.rpc_url,
-    current_address = SuiAddress(cfg.addresses[0]),
+    client=client,
     package_id=deepbook_package_id
 )
 ```
@@ -67,9 +68,9 @@ In order to write the deepbook package you have to instantiate `DeepBookSDK` cla
 ```py
 from deepbookpy.deepbook_sdk import DeepBookSDK
 
+
 deepbook = DeepBookSDK(
-    provider= cfg.rpc_url,
-    current_address = SuiAddress(cfg.addresses[0]),
+    client=client,
     package_id=deepbook_package_id
 )
 ```
