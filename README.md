@@ -1,4 +1,4 @@
-# Experimental Sui Deepbook Python SDK
+# Community Sui Deepbook Python SDK
 
 Built with [pysui](https://github.com/FrankC01/pysui/)
 
