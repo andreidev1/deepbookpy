@@ -2,7 +2,7 @@
 
 Building with [pysui:p2050](https://github.com/FrankC01/pysui/tree/p0250) for simpler user configuration.
 
-## Python DeepBook SDK Parameters
+## Python Sui DeepBook SDK Parameters
 ```py
 from deepbookpy.utils.normalizer import normalize_sui_object_id
 
@@ -10,8 +10,10 @@ DEEPBOOK_PACKAGE_ID = "https://explorer.sui.io/object/0x000000000000000000000000
 
 CLOCK = normalize_sui_object_id("0x6")
 ```
+## Quick Start
+See [here][https://github.com/andreidev1/deepbookpy/tree/main/docs/] how to get started using deepbookpy 
 
-## Deepbook Sources
+## DeepBook Sources
 
 [Official Deepbook Sui Website](https://sui-deepbook.com/)
 
