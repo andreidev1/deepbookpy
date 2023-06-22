@@ -6,7 +6,7 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64
 from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_builders.exec_builders import InspectTransaction
 
-from utils.normalizer import normalize_sui_object_id
+from deepbookpy.utils.normalizer import normalize_sui_object_id
 
 
 class DeepBookQuery:
