@@ -71,7 +71,7 @@ deepbook_query.get_market_price(
 
 ## Write to DeepBook Package
 
-In order to write the deepbook package you have to instantiate `DeepBookSDK` class
+In order to write to the deepbook package you have to instantiate `DeepBookSDK` class
 
 ```py
 from deepbookpy.deepbook_sdk import DeepBookSDK
