@@ -1,6 +1,14 @@
 ## Install deepbookpy
 
-Install deepbookpy by using `` in your terminal
+Install deepbookpy using pip + https : `pip install git+https://git@github.com/andreidev1/deepbookpy.git`
+
+Install deepbookpy using pip + ssh : `pip install git+ssh://git@github.com/andreidev1/deepbookpy.git`
+
+OR
+
+Install deepbookpy using pip + https : `poetry add git+https://git@github.com/andreidev1/deepbookpy.git`
+
+Install deepbookpy using poetry + ssh : `poetry add git+ssh://git@github.com/andreidev1/deepbookpy.git`
 
 ## Set up pysui config
 Replace `rpc_url`, `prv_keys`, `ws_url` with your desired data.
