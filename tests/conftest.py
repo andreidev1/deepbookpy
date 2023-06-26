@@ -4,6 +4,8 @@ import pytest
 
 from pysui.sui.sui_config import SuiConfig
 
+from deepbookpy.utils.normalizer import normalize_sui_object_id
+
 
 def network_client():
     return dict(main=dict(rpc_url="https://fullnode.mainnet.sui.io:443/", ws_url="wss://fullnode.mainnet.sui.io:443/"),
@@ -24,6 +26,22 @@ def init_client():
         ws_url=network_client()["test"]["ws_url"]
     )
     return cfg
+
+
+@pytest.fixture(scope='module')
+def dee9_package_id():
+    return normalize_sui_object_id("dee9")
+
+
+def dee9_data():
+    return dict(main=dict(),
+                test=dict(
+                        token_1="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::wsui::WSUI", 
+                        token_2="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::usd::USD",
+                        pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c"
+                        ),
+                dev=dict()
+                )
 
 
 @pytest.fixture(scope='module')
