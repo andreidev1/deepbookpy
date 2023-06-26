@@ -36,7 +36,7 @@ my_sui_address = cfg.addresses[0]
 ```py
 from deepbookpy.utils.normalizer import normalize_sui_object_id
 
-deepbook_package_id = normalize_sui_object_id("dee6")
+deepbook_package_id = normalize_sui_object_id("dee9")
 
 ```
 
