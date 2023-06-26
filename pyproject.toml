@@ -1,17 +1,17 @@
 [tool.poetry]
 name = "deepbookpy"
 version = "0.1.0"
-description = ""
+description = "Sui Deepbook Python SDK"
 authors = ["andreidev1 <andreid.dev@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-black = "^23.3.0"
-flake8 = "^6.0.0"
-pysui = {git = "ssh://git@github.com/FrankC01/pysui.git", rev = "p0250"}
+pysui = "^0.26.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^7.4.0"
+black = "^23.3.0"
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
