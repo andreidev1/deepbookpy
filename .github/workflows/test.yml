@@ -2,6 +2,8 @@ name: Automated test suite
 
 on:
   push:
+    paths:
+      - deepbookpy/**
     branches: [ main ]
   pull_request:
     branches: [ main ]
