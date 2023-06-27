@@ -340,7 +340,44 @@ class DeepBookSDK:
 
         return txer
 
-    # def cancel_order()
+    def cancel_order(
+            self,
+            token_1: str,
+            token_2: str,
+            pool_id: str,
+            order_id: str,
+            account_cap: str,
+            ):
+        """
+        Cancel a limit order placed onto the CLOB
+
+        ::param token_1::
+            Full coin type of the base asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC
+        
+        ::param token_2::
+           Full coin type of quote asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+
+        :param pool_id:
+            Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        
+        ::param order_id:
+            Order id of a limit order, you can find them through function list_open_orders() eg: "0"
+
+        ::param account_cap::
+            Object id of Account Capacity under user address, created after invoking create_account()
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target = f"{self.package_id}::clob::cancel_order",
+
+            arguments = [ObjectID(pool_id), ObjectID(order_id), ObjectID(account_cap)],
+
+            type_arguments = [token_1, token_2]
+        )
+
+        return txer
     # def cancel_all_orders()
     # def batch_cancel_order()
     # def find_best_route()
