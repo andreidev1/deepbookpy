@@ -6,6 +6,7 @@ from tests.conftest import dee9_data
 token_1 = dee9_data()['test']["token_1"]
 token_2 = dee9_data()["test"]["token_2"]
 pool_id = dee9_data()["test"]["pool_id"]
+account_cap = dee9_data()["test"]["account_cap"]
 
 
 def test_get_market_price(init_client, dee9_package_id):
