@@ -170,7 +170,7 @@ class DeepBookQuery:
         return txer.inspect_all()
     
     
-    def get_level2_book_status(self, token_1: str, token_2: str, pool_id: str, lower_price: int, higher_price: int, is_bide_size: bool) -> InspectTransaction:
+    def get_level2_book_status(self, token_1: str, token_2: str, pool_id: str, lower_price: int, higher_price: int, is_bid_side: bool) -> InspectTransaction:
         """
         Get level2 book status
 
@@ -198,7 +198,7 @@ class DeepBookQuery:
 
         txer.move_call(
     
-            target=f"{self.package_id}::clob::get_level2_book_status_bid_side" if is_bide_size else f"{self.package_id}::clob::get_level2_book_status_ask_side",
+            target=f"{self.package_id}::clob::get_level2_book_status_bid_side" if is_bid_side else f"{self.package_id}::clob::get_level2_book_status_ask_side",
             
             arguments= [
                 ObjectID(pool_id),
