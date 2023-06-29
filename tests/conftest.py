@@ -38,7 +38,8 @@ def dee9_data():
                 test=dict(
                         token_1="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::wsui::WSUI", 
                         token_2="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::usd::USD",
-                        pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c"
+                        pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c",
+                        account_cap="0xb888da6bbbcccad112d02c67d2ef33a4650996469f60521b1cf571e4d9edc48b"
                         ),
                 dev=dict()
                 )
