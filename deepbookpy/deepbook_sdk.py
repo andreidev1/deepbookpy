@@ -23,7 +23,7 @@ class DeepBookSDK:
             self,
             token_1: str,
             token_2: str,
-            ticket_size: int,
+            tick_size: int,
             lot_size: int
     ) -> SuiTransaction:
         """
@@ -35,7 +35,7 @@ class DeepBookSDK:
         :param token_2:
             Full coin type of quote asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::usdt::USDT"
 
-        :param ticket_size:
+        :param tick_size:
             Minimal Price Change Accuracy of this pool, eg: 10000000
 
         :param lot_size:
@@ -50,7 +50,7 @@ class DeepBookSDK:
 
             target = f"{self.package_id}::clob::create_pool",
 
-            arguments = [SuiU64(ticket_size), SuiU64(lot_size), splits],
+            arguments = [SuiU64(str(tick_size)), SuiU64(str(lot_size)), splits],
 
             type_arguments = [token_1, token_2]
     )
