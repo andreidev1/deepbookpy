@@ -329,7 +329,7 @@ class DeepBookSDK:
         return txer
     
 
-    def place_limit_holder(
+    def place_limit_order(
             self,
             token_1: str,
             token_2: str,
