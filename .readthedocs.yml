@@ -13,7 +13,7 @@ build:
     post_create_environment:
     - pip install poetry
     post_install:
-    - poetry install --with docs
+    - poetry install
 
 
 sphinx:
