@@ -30,6 +30,6 @@ Check out [docs](https://github.com/andreidev1/deepbookpy/tree/main/docs/quick-s
 
 ## DeepBook Fee Structure
 
-The current default maker rebate fee rate is 0.25%, and the default taker commission rate is 0.5%. 
+The current default maker rebate fee rate is 0.15%, and the default taker commission rate is 0.25%. 
 
 Creating pool is permissionless, and it will incur a 100 SUI fee for creating a pool.
