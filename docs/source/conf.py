@@ -17,7 +17,8 @@ import deepbookpy
 project = 'deepbookpy'
 copyright = '2023, Andrei'
 author = 'Andrei'
-release = '0.2.0'
+version = deepbookpy.version.__version__
+release = version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
