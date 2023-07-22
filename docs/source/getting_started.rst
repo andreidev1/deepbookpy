@@ -4,13 +4,15 @@ Quick Start
 Install deepbookpy
 ******************
 
-Install deepbookpy using ``pip`` :
-``pip install git+https://git@github.com/andreidev1/deepbookpy.git``
+Using ``pip``
 
-OR
+`pip install deepbookpy`
 
-Install deepbookpy using ``poetry`` :
-``poetry add git+https://git@github.com/andreidev1/deepbookpy.git``
+
+Using ``poetry``
+
+`poetry add deepbookpy`
+
 
 Set up pysui config
 *******************
