@@ -1,3 +1,24 @@
+## [0.2.1] - 2023-07-22
+
+### Added
+
+- Integrate Sphinx Documentation (#3)
+- Upload Deepbookpy to PyPi (#7)
+- version.py 
+- readthedocs.yml
+
+### Changed
+
+- upgrade pysui 0.26.0 to 0.29.0
+
+### Fixed
+
+- [bug](https://github.com/andreidev1/deepbookpy/issues/8) Fix `deepbookpy` package installation
+
+### Removed
+
+
+
 ## [0.1.0] - 2023-06-29
 
 ### Added
