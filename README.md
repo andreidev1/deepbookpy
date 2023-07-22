@@ -1,5 +1,5 @@
 # Community Sui DeepBook Python SDK
-Python Community DeepBook Client SDK for Sui blockchain - built by community with [pysui](https://github.com/FrankC01/pysui/)
+Python DeepBook Client SDK for Sui blockchain - built by community with [pysui](https://github.com/FrankC01/pysui/)
 
 > **_This package is still in active development. Use at your own risk._** 
 ## Python Sui DeepBook SDK Parameters
@@ -28,8 +28,6 @@ Check out [docs](https://github.com/andreidev1/deepbookpy/tree/main/docs/quick-s
 
 [DeepBook Devnet Package](https://suiexplorer.com/object/0x000000000000000000000000000000000000000000000000000000000000dee9?network=devnet)
 
-## DeepBook Fee Structure
+## Ask A Question
 
-The current default maker rebate fee rate is 0.25%, and the default taker commission rate is 0.5%. 
-
-Creating pool is permissionless, and it will incur a 100 SUI fee for creating a pool.
+Join Our [discord](https://discord.gg/CUTen9zu5h)
