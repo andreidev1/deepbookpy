@@ -33,13 +33,14 @@ def dee9_package_id():
     return normalize_sui_object_id("dee9")
 
 
-def dee9_data():
+def dee9_data_v2():
+    """Clob v2 data"""
     return dict(main=dict(),
                 test=dict(
-                        token_1="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::wsui::WSUI", 
-                        token_2="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::usd::USD",
-                        pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c",
-                        account_cap="0xb888da6bbbcccad112d02c67d2ef33a4650996469f60521b1cf571e4d9edc48b"
+                        token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC", 
+                        token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
+                        pool_id="0xe3c2a6adf92d4652335387534225240828e918f5a834b466c3842bae4f99ce0f",
+                        account_cap="0x0a433217916d38142ada900114cf3c73f50f11ad7bc1279e0ba6644868fc8d89"
                         ),
                 dev=dict()
                 )
