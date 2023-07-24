@@ -266,6 +266,14 @@ pycodestyle = ">=2.10.0,<2.11.0"
 pyflakes = ">=3.0.0,<3.1.0"
 
 [[package]]
+name = "flaky"
+version = "3.7.0"
+description = "Plugin for nose or pytest that automatically reruns flaky tests."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -833,7 +841,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "bb0939fda6f3e7e28a9e6c933bed0c783ac52010016aa4816d6b80104686ab89"
+content-hash = "9fa356d64b926b5300dd354f38dd00f94c95d54d3c636e55581d17c07a0c371d"
 
 [metadata.files]
 alabaster = []
@@ -859,6 +867,7 @@ ecdsa = []
 ed25519-blake2b = []
 exceptiongroup = []
 flake8 = []
+flaky = []
 h11 = []
 h2 = []
 hpack = []
