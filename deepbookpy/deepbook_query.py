@@ -50,7 +50,7 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob::get_order_status",
+            target=f"{self.package_id}::clob_v2::get_order_status",
 
             arguments= [
                 ObjectID(pool_id),
@@ -86,7 +86,7 @@ class DeepBookQuery:
        
         txer.move_call(
 
-            target=f"{self.package_id}::clob::get_market_price",
+            target=f"{self.package_id}::clob_v2::get_market_price",
 
             arguments= [
                 ObjectID(pool_id),
@@ -121,7 +121,7 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob::account_balance",
+            target=f"{self.package_id}::clob_v2::account_balance",
 
             arguments= [
                 ObjectID(pool_id),
@@ -156,7 +156,7 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob::list_open_orders",
+            target=f"{self.package_id}::clob_v2::list_open_orders",
 
             arguments= [
                 ObjectID(pool_id),
@@ -198,7 +198,7 @@ class DeepBookQuery:
 
         txer.move_call(
     
-            target=f"{self.package_id}::clob::get_level2_book_status_bid_side" if is_bid_side else f"{self.package_id}::clob::get_level2_book_status_ask_side",
+            target=f"{self.package_id}::clob_v2::get_level2_book_status_bid_side" if is_bid_side else f"{self.package_id}::clob_v2::get_level2_book_status_ask_side",
             
             arguments= [
                 ObjectID(pool_id),
