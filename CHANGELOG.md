@@ -1,3 +1,21 @@
+## [0.3.0] - 2023-07-25
+
+### Added
+
+- `flaky` test dependency
+-  Compatible query methods for clob_v2 module ( partially fixes #4 )
+-  new integration tests for querying clob_v2 module
+
+### Changed
+
+- 0.2.1 to 0.3.0 version
+
+### Fixed
+
+
+### Removed
+
+
 ## [0.2.1] - 2023-07-22
 
 ### Added
