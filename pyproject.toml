@@ -3,6 +3,7 @@ name = "deepbookpy"
 version = "0.3.0"
 description = "Sui Deepbook Python SDK"
 authors = ["andreidev1 <andreid.dev@gmail.com>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
