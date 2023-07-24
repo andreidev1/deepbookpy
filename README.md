@@ -1,7 +1,7 @@
 # Community Sui DeepBook Python SDK
 Python DeepBook Client SDK for Sui blockchain - built by community with [pysui](https://github.com/FrankC01/pysui/)
 
-> **_This package is still in active development. Use at your own risk._**
+> **_This branch uses clob v1 - a deprecated version of deepbook module_**
 
 ## Python Sui DeepBook SDK Parameters
 ```py
