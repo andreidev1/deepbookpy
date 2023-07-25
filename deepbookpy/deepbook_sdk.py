@@ -48,7 +48,7 @@ class DeepBookSDK:
 
         txer.move_call(
 
-            target = f"{self.package_id}::clob::create_pool",
+            target = f"{self.package_id}::clob_v2::create_pool",
 
             arguments = [SuiU64(str(tick_size)), SuiU64(str(lot_size)), splits],
 
@@ -68,7 +68,7 @@ class DeepBookSDK:
         txer = SuiTransaction(self.client)
 
         cap: list = txer.move_call(
-            target = f"{self.package_id}::clob::create_account",
+            target = f"{self.package_id}::clob_v2::create_account",
 
             arguments = [],
 
