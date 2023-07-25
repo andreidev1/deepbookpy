@@ -19,3 +19,9 @@ flaky = "^3.7.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+changelog = "https://github.com/andreidev1/deepbookpy/blob/main/CHANGELOG.md"
+repository = "https://github.com/andreidev1/deepbookpy"
+issues = "https://github.com/andreidev1/deepbookpy/issues"
+documentation = "https://pysui.readthedocs.io"
