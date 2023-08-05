@@ -3,10 +3,10 @@
 from pysui.sui.sui_clients.sync_client import SuiClient
 from pysui.sui.sui_clients.transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64
-from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_builders.exec_builders import InspectTransaction
 
 from deepbookpy.utils.normalizer import normalize_sui_object_id
+from deepbookpy.utils.constants import CLOB
 
 
 class DeepBookQuery:
@@ -20,8 +20,8 @@ class DeepBookQuery:
 
     def get_order_status(
         self,
-        token_1: str,
-        token_2: str,
+        base_asset_type: str,
+        quote_asset_type: str,
         pool_id: str,
         order_id: int,
         account_cap: str
@@ -29,11 +29,11 @@ class DeepBookQuery:
         """
         Get the order status 
         
-        :param token_1:
-            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        :param base_asset_type:
+            base_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
         
-        :param token_2:
-            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+        :param quote_asset_type:
+            quote_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -50,7 +50,7 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob_v2::get_order_status",
+            target=f"{self.package_id}::{CLOB}::get_order_status",
 
             arguments= [
                 ObjectID(pool_id),
@@ -58,7 +58,7 @@ class DeepBookQuery:
                 ObjectID(account_cap)
                 ],
 
-            type_arguments = [token_1, token_2]
+            type_arguments = [base_asset_type, quote_asset_type]
     )
         
         return txer.inspect_all()
@@ -66,18 +66,18 @@ class DeepBookQuery:
     
     def get_market_price(
             self,
-            token_1: str,
-            token_2: str,
+            base_asset_type: str,
+            quote_asset_type: str,
             pool_id: str
     ) -> InspectTransaction:
         """
        Get Market Price
 
-       :param token_1:
-            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+       :param base_asset_type:
+            base_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
         
-        :param token_2:
-            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+        :param quote_asset_type:
+            quote_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -86,28 +86,28 @@ class DeepBookQuery:
        
         txer.move_call(
 
-            target=f"{self.package_id}::clob_v2::get_market_price",
+            target=f"{self.package_id}::{CLOB}::get_market_price",
 
             arguments= [
                 ObjectID(pool_id),
                 ],
 
-            type_arguments = [token_1, token_2]
+            type_arguments = [base_asset_type, quote_asset_type]
     )
         
 
         return txer.inspect_all()
     
 
-    def get_usr_position(self, token_1: str, token_2: str, pool_id: str, account_cap: str) -> InspectTransaction :
+    def get_user_position(self, base_asset_type: str, quote_asset_type: str, pool_id: str, account_cap: str) -> InspectTransaction :
         """
         Get the base and quote token in custodian account
         
-        :param token_1:
-            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        :param base_asset_type:
+            base_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
         
-        :param token_2:
-            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+        :param quote_asset_type:
+            quote_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -121,29 +121,29 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob_v2::account_balance",
+            target=f"{self.package_id}::{CLOB}::account_balance",
 
             arguments= [
                 ObjectID(pool_id),
                 ObjectID(account_cap)
                 ],
 
-            type_arguments = [token_1, token_2]
+            type_arguments = [base_asset_type, quote_asset_type]
     )
         
 
         return txer.inspect_all()
     
 
-    def list_open_orders(self, token_1: str, token_2: str, pool_id: str, account_cap: str) -> InspectTransaction:
+    def list_open_orders(self, base_asset_type: str, quote_asset_type: str, pool_id: str, account_cap: str) -> InspectTransaction:
         """
         Get the open orders of the current user
         
-        :param token_1:
-            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        :param base_asset_type:
+            base_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
         
-        :param token_2:
-            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+        :param quote_asset_type:
+            quote_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -156,29 +156,29 @@ class DeepBookQuery:
 
         txer.move_call(
 
-            target=f"{self.package_id}::clob_v2::list_open_orders",
+            target=f"{self.package_id}::{CLOB}::list_open_orders",
 
             arguments= [
                 ObjectID(pool_id),
                 ObjectID(account_cap)
                 ],
 
-            type_arguments = [token_1, token_2]
+            type_arguments = [base_asset_type, quote_asset_type]
     )
         
 
         return txer.inspect_all()
     
     
-    def get_level2_book_status(self, token_1: str, token_2: str, pool_id: str, lower_price: int, higher_price: int, is_bid_side: bool) -> InspectTransaction:
+    def get_level2_book_status(self, base_asset_type: str, quote_asset_type: str, pool_id: str, lower_price: int, higher_price: int, is_bid_side: bool) -> InspectTransaction:
         """
         Get level2 book status
 
-        :param token_1:
-            token_1 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+        :param base_asset_type:
+            base_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
         
-        :param token_2:
-            token_2 of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
+        :param quote_asset_type:
+            quote_asset_type of a certain pair, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT
 
         :param pool_id: 
             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -198,7 +198,7 @@ class DeepBookQuery:
 
         txer.move_call(
     
-            target=f"{self.package_id}::clob_v2::get_level2_book_status_bid_side" if is_bid_side else f"{self.package_id}::clob_v2::get_level2_book_status_ask_side",
+            target=f"{self.package_id}::{CLOB}::get_level2_book_status_bid_side" if is_bid_side else f"{self.package_id}::{CLOB}::get_level2_book_status_ask_side",
             
             arguments= [
                 ObjectID(pool_id),
@@ -207,7 +207,7 @@ class DeepBookQuery:
                 ObjectID(normalize_sui_object_id('0x6'))
                 ],
 
-            type_arguments = [token_1, token_2]
+            type_arguments = [base_asset_type, quote_asset_type]
     )
         
 
