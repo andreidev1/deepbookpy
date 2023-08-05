@@ -37,16 +37,11 @@ def dee9_data_v2():
     """Clob v2 data"""
     return dict(main=dict(),
                 test=dict(
-                        token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC", 
-                        token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
+                        base_asset_type="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC", 
+                        quote_asset_type="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
                         pool_id="0xe3c2a6adf92d4652335387534225240828e918f5a834b466c3842bae4f99ce0f",
                         account_cap="0x0a433217916d38142ada900114cf3c73f50f11ad7bc1279e0ba6644868fc8d89"
                         ),
                 dev=dict()
                 )
-
-
-@pytest.fixture(scope='module')
-def package_id():
-    return "0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931"
 
