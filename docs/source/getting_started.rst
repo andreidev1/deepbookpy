@@ -102,12 +102,12 @@ Sample of executing ``::clob::create_pool``
    create_pool = deepbook.create_pool(
        token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
        token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-       ticket_size=10000000,
+       tick_size=10000000,
        lot_size=10000
    )
 
    # Execute the transaction
-   tx_result = create_pool.execute(gas_budget="100000")
+   tx_result = create_pool.execute(gas_budget="10000000")
    if tx_result.is_ok():
        if hasattr(tx_result.result_data, "to_json"):
            print(tx_result.result_data.to_json(indent=2))
