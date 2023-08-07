@@ -1,3 +1,31 @@
+## [0.3.1] - 2023-08-07
+
+### Added
+
+- `get_all_pools()` - returns all available pools that live in `dee9` package
+- `get_pool_info()` - returns `pool_id`, `base_asset` and `quote_asset`
+- `get_pool_type_args()` that retrives `base_asset_type` and `quote_asset_type`
+- `types/` directory that contains `LimitOrderType` and `SelfMatchingPreventionStyle` interfaces
+- `utils.helpers` module that contains different helper functions
+- new constants that live in `utils.constants` module
+
+### Changed
+
+- `pysui 0.29.0` to `pysui 0.32.0`
+- `token_1` & `token_2` parameters of methods that live in `deepbookpy.deepbook_query` to `base_asset_type`, `quote_asset_type`
+- `swap` internal design functions
+- `SuiTransction` pysui import
+
+### Fixed
+
+- [pysui latest version incompatibility](https://github.com/andreidev1/deepbookpy/issues/11)
+- cancel order functions argument types
+
+
+### Removed
+
+- `_mint()` method
+
 ## [0.3.0] - 2023-07-25
 
 ### Added
