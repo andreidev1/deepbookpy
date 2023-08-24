@@ -2,15 +2,15 @@
 import math
 from typing import List
 
-from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_clients.sync_client import SuiClient
+from pysui.sui.sui_clients.common import handle_result
+from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_types.collections import SuiArray
 from pysui.sui.sui_types.event_filter import MoveEventTypeQuery
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_builders.exec_builders import InspectTransaction
 from pysui.sui.sui_builders.get_builders import QueryEvents
-from pysui.sui.sui_clients.common import handle_result
 
 
 from deepbookpy.utils.normalizer import normalize_sui_object_id
@@ -54,9 +54,15 @@ class DeepBookClient:
             type_arguments=[base_asset, quote_asset],
         )
         return txer
-    
+
     def create_customized_pool(
-        self, base_asset: str, quote_asset: str, tick_size: int, lot_size: int, taker_fee_rate: int, maker_rebate_rate: int
+        self,
+        base_asset: str,
+        quote_asset: str,
+        tick_size: int,
+        lot_size: int,
+        taker_fee_rate: int,
+        maker_rebate_rate: int,
     ) -> SuiTransaction:
         """
         Create customized pool
@@ -72,10 +78,10 @@ class DeepBookClient:
 
         :param lot_size:
             Minimal Lot Change Accuracy of this pool, eg: 10000
-        
+
         :param taker_fee_rate:
             Customized taker fee rate, float scaled by `FLOAT_SCALING_FACTOR`, Taker_fee_rate of 0.25% should be 2_500_000 for example
-        
+
         :param maker_rebate_rate:
             Customized Customized maker rebate rate, float scaled by `FLOAT_SCALING_FACTOR`,  should be less than or equal to the taker_rebate_rate
         """
@@ -86,7 +92,13 @@ class DeepBookClient:
 
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::create_customized_pool",
-            arguments=[SuiU64(str(tick_size)), SuiU64(str(lot_size)), SuiU64(str(taker_fee_rate)), SuiU64(str(maker_rebate_rate)), splits],
+            arguments=[
+                SuiU64(str(tick_size)),
+                SuiU64(str(lot_size)),
+                SuiU64(str(taker_fee_rate)),
+                SuiU64(str(maker_rebate_rate)),
+                splits,
+            ],
             type_arguments=[base_asset, quote_asset],
         )
         return txer
@@ -127,7 +139,9 @@ class DeepBookClient:
             type_arguments=[ObjectID(current_address)],
         )
 
-        txer.transfer_objects(transfers=[child_cap], recipient=SuiAddress(current_address))
+        txer.transfer_objects(
+            transfers=[child_cap], recipient=SuiAddress(current_address)
+        )
 
         return txer
 
@@ -540,12 +554,9 @@ class DeepBookClient:
         )
 
         return txer
-    
+
     def clean_up_expired_orders(
-        self,
-        pool_id: str,
-        order_ids: List[str],
-        order_owners: List[str]
+        self, pool_id: str, order_ids: List[str], order_owners: List[str]
     ) -> SuiTransaction:
         """
         Clean up expired orders
@@ -568,8 +579,8 @@ class DeepBookClient:
                 ObjectID(pool_id),
                 ObjectID(normalize_sui_object_id("0x6")),
                 SuiArray(order_ids),
-                SuiArray(order_owners)
-                ],
+                SuiArray(order_owners),
+            ],
             type_arguments=self.get_pool_type_args(pool_id),
         )
 
