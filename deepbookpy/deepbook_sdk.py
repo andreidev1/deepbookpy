@@ -48,6 +48,42 @@ class DeepBookSDK:
             type_arguments=[token_1, token_2],
         )
         return txer
+    
+    def create_customized_pool(
+        self, token_1: str, token_2: str, tick_size: int, lot_size: int, taker_fee_rate: int, maker_rebate_rate: int
+    ) -> SuiTransaction:
+        """
+        Create customized pool
+
+        :param token_1:
+            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
+
+        :param token_2:
+            Full coin type of quote asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::usdt::USDT"
+
+        :param tick_size:
+            Minimal Price Change Accuracy of this pool, eg: 10000000
+
+        :param lot_size:
+            Minimal Lot Change Accuracy of this pool, eg: 10000
+        
+        :param taker_fee_rate:
+            Customized taker fee rate, float scaled by `FLOAT_SCALING_FACTOR`, Taker_fee_rate of 0.25% should be 2_500_000 for example
+        
+        :param maker_rebate_rate:
+            Customized Customized maker rebate rate, float scaled by `FLOAT_SCALING_FACTOR`,  should be less than or equal to the taker_rebate_rate
+        """
+
+        txer = SuiTransaction(self.client)
+
+        splits: list = txer.split_coin(coin=txer.gas, amounts=[CREATION_FEE])
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::create_customized_pool",
+            arguments=[SuiU64(str(tick_size)), SuiU64(str(lot_size)), SuiU64(str(taker_fee_rate)), SuiU64(str(maker_rebate_rate)), splits],
+            type_arguments=[token_1, token_2],
+        )
+        return txer
 
     def create_account(self, current_address: SuiAddress) -> SuiTransaction:
         """
@@ -66,6 +102,26 @@ class DeepBookSDK:
         )
 
         txer.transfer_objects(transfers=[cap], recipient=SuiAddress(current_address))
+
+        return txer
+
+    def create_child_account_cap(self, current_address: SuiAddress) -> SuiTransaction:
+        """
+        Create and Transfer child custodian account to user
+
+        :param current_address:
+            current user address, eg: "0xbddc9d4961b46a130c2e1f38585bbc6fa8077ce54bcb206b26874ac08d607966"
+        """
+
+        txer = SuiTransaction(self.client)
+
+        child_cap: list = txer.move_call(
+            target=f"{self.package_id}::{CLOB}::create_child_account_cap",
+            arguments=[],
+            type_arguments=[ObjectID(current_address)],
+        )
+
+        txer.transfer_objects(transfers=[child_cap], recipient=SuiAddress(current_address))
 
         return txer
 
@@ -369,10 +425,6 @@ class DeepBookSDK:
             type_arguments=[token_1, token_2],
         )
 
-        print(base_coin_ret)
-        print("----")
-        print(quote_coin_ret)
-
         txer.transfer_objects(
             transfers=[base_coin_ret], recipient=SuiAddress(current_address)
         )
@@ -543,7 +595,7 @@ class DeepBookSDK:
             Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
 
         :param order_ids:
-            orderId of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
+            Order id of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
 
         :param account_cap:
             Object id of Account Capacity under user address, created after invoking create_account()
@@ -554,6 +606,43 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::batch_cancel_order",
             arguments=[ObjectID(pool_id), SuiArray(order_ids), ObjectID(account_cap)],
+            type_arguments=[token_1, token_2],
+        )
+
+        return txer
+    
+    def clean_up_expired_orders(
+        self,
+        token_1: str,
+        token_2: str,
+        pool_id: str,
+        order_ids: List[str],
+        order_owners: List[str]
+    ) -> SuiTransaction:
+        """
+        Clean up expired orders
+
+        :param token_1:
+            Full coin type of the base asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC
+
+        :param token_2:
+           Full coin type of quote asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
+
+        :param pool_id::
+            Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param order_ids:
+            Order id of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
+
+        :param order_owners:
+            Array of Order owners, should be the owner addresses from the account capacities which placed the orders
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::clean_up_expired_orders",
+            arguments=[ObjectID(pool_id), ObjectID(normalize_sui_object_id("0x6")), SuiArray(order_ids), SuiArray(order_owners)],
             type_arguments=[token_1, token_2],
         )
 
