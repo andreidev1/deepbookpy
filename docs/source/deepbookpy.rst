@@ -7,15 +7,7 @@ Submodules
 deepbookpy.deepbook\_query module
 ---------------------------------
 
-.. automodule:: deepbookpy.deepbook_query
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-deepbookpy.deepbook\_sdk module
--------------------------------
-
-.. automodule:: deepbookpy.deepbook_sdk
+.. automodule:: deepbookpy.deepbook_client
    :members:
    :undoc-members:
    :show-inheritance:

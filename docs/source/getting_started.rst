@@ -58,22 +58,20 @@ In order to query the deepbook package you have to instantiate
 
 .. code:: py
 
-   from deepbookpy.deepbook_query import DeepBookQuery
+   from deepbookpy.deepbook_client import DeepBookClient
 
 
-   deepbook_query = DeepBookQuery(
+   deepbook_query = DeepBookClient(
        client=client,
        package_id=deepbook_package_id
    )
 
-Sample of calling ``::clob::get_market_price``
+Sample of calling ``get_market_price()``
 
 .. code:: py
 
 
    deepbook_query.get_market_price(
-       token_1="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::wsui::WSUI",
-       token_2="0x1c3e542f90547ee5b5638c15d3105746740058d20a5f1b4b7c39db5e7dd70acf::usd::USD",
        pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c"
    )
 
@@ -81,27 +79,27 @@ Write to DeepBook Package
 *************************
 
 In order to write to the deepbook package you have to instantiate
-``DeepBookSDK`` class
+``DeepBookClient`` class
 
 .. code:: py
 
-   from deepbookpy.deepbook_sdk import DeepBookSDK
+   from deepbookpy.deepbook_client import DeepBookClient
 
 
-   deepbook = DeepBookSDK(
+   deepbook = DeepBookClient(
        client=client,
        package_id=deepbook_package_id
    )
 
-Sample of executing ``::clob::create_pool``
+Sample of executing ``create_pool()``
 
 .. code:: py
 
-   from deepbookpy.deepbook_sdk import DeepBookSDK
+   from deepbookpy.deepbook_client import DeepBookClient
 
    create_pool = deepbook.create_pool(
-       token_1="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-       token_2="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
+       base_asset="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
+       quote_asset="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
        tick_size=10000000,
        lot_size=10000
    )
@@ -115,8 +113,3 @@ Sample of executing ``::clob::create_pool``
            print(tx_result.result_data)
    else:
        print(tx_result.result_string)
-
-**NOTE:** At this moment deepbook is under development and you might
-experience issues with ``dee9`` package. Additionally you can use this
-``0x8da36ef392a7d2b1e7dac2a987767eea5a415d843d3d34cb66bec6434001f931``
-address as package id.

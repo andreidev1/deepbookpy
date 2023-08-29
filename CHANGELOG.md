@@ -1,3 +1,22 @@
+## [0.4.0] - 2023-08-23
+
+### Added
+
+- create_customized_pool(), create_child_account_cap(), clean_up_expired_orders()
+
+
+### Changed
+
+- `deepbookpy.deepbook_query` & `deepbookpy.deepbook_sdk` -> `deepbook_client.py`
+
+### Fixed
+
+
+
+### Removed
+
+
+
 ## [0.3.1] - 2023-08-07
 
 ### Added

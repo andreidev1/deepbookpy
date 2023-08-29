@@ -2,7 +2,7 @@
 import flaky
 from pysui.sui.sui_clients.sync_client import SuiClient
 
-from deepbookpy.deepbook_query import DeepBookQuery
+from deepbookpy.deepbook_client import DeepBookClient
 from tests.conftest import dee9_data_v2
 
 
@@ -15,7 +15,7 @@ def test_get_market_price(init_client, dee9_package_id):
     """Test market price query function"""
 
     client = SuiClient(init_client)
-    deepbook_query = DeepBookQuery(client, dee9_package_id)
+    deepbook_query = DeepBookClient(client, dee9_package_id)
 
     status = (
         deepbook_query.get_market_price(pool_id=pool_id)
@@ -30,7 +30,7 @@ def test_get_market_price(init_client, dee9_package_id):
 @flaky.flaky()
 def test_get_user_position(init_client, dee9_package_id):
     client = SuiClient(init_client)
-    deepbook_query = DeepBookQuery(client, dee9_package_id)
+    deepbook_query = DeepBookClient(client, dee9_package_id)
 
     status = (
         deepbook_query.get_user_position(pool_id=pool_id, account_cap=account_cap)
@@ -45,7 +45,7 @@ def test_get_user_position(init_client, dee9_package_id):
 @flaky.flaky()
 def test_list_open_orders(init_client, dee9_package_id):
     client = SuiClient(init_client)
-    deepbook_query = DeepBookQuery(client, dee9_package_id)
+    deepbook_query = DeepBookClient(client, dee9_package_id)
 
     status = (
         deepbook_query.list_open_orders(pool_id=pool_id, account_cap=account_cap)
@@ -60,7 +60,7 @@ def test_list_open_orders(init_client, dee9_package_id):
 @flaky.flaky()
 def test_get_level2_book_status_true_bid(init_client, dee9_package_id):
     client = SuiClient(init_client)
-    deepbook_query = DeepBookQuery(client, dee9_package_id)
+    deepbook_query = DeepBookClient(client, dee9_package_id)
 
     status = (
         deepbook_query.get_level2_book_status(
@@ -80,7 +80,7 @@ def test_get_level2_book_status_true_bid(init_client, dee9_package_id):
 @flaky.flaky()
 def test_get_level2_book_status_false_bid(init_client, dee9_package_id):
     client = SuiClient(init_client)
-    deepbook_query = DeepBookQuery(client, dee9_package_id)
+    deepbook_query = DeepBookClient(client, dee9_package_id)
 
     status = (
         deepbook_query.get_level2_book_status(

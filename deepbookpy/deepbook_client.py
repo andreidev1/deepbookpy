@@ -2,17 +2,23 @@
 import math
 from typing import List
 
-from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_clients.sync_client import SuiClient
+from pysui.sui.sui_clients.common import handle_result
+from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_types.collections import SuiArray
+from pysui.sui.sui_types.event_filter import MoveEventTypeQuery
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
+from pysui.sui.sui_builders.exec_builders import InspectTransaction
+from pysui.sui.sui_builders.get_builders import QueryEvents
+
 
 from deepbookpy.utils.normalizer import normalize_sui_object_id
 from deepbookpy.utils.constants import CLOB, CREATION_FEE
+from deepbookpy.utils.helpers import parse_struct
 
 
-class DeepBookSDK:
+class DeepBookClient:
     """Write data to DeepBook package"""
 
     def __init__(self, client: SuiClient, package_id: str):
@@ -20,15 +26,15 @@ class DeepBookSDK:
         self.package_id = package_id
 
     def create_pool(
-        self, token_1: str, token_2: str, tick_size: int, lot_size: int
+        self, base_asset: str, quote_asset: str, tick_size: int, lot_size: int
     ) -> SuiTransaction:
         """
         Create pool for trading pair - 100 Sui fee
 
-        :param token_1:
+        :param base_asset:
             Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
-        :param token_2:
+        :param quote_asset:
             Full coin type of quote asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::usdt::USDT"
 
         :param tick_size:
@@ -45,7 +51,55 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::create_pool",
             arguments=[SuiU64(str(tick_size)), SuiU64(str(lot_size)), splits],
-            type_arguments=[token_1, token_2],
+            type_arguments=[base_asset, quote_asset],
+        )
+        return txer
+
+    def create_customized_pool(
+        self,
+        base_asset: str,
+        quote_asset: str,
+        tick_size: int,
+        lot_size: int,
+        taker_fee_rate: int,
+        maker_rebate_rate: int,
+    ) -> SuiTransaction:
+        """
+        Create customized pool
+
+        :param base_asset:
+            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
+
+        :param quote_asset:
+            Full coin type of quote asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::usdt::USDT"
+
+        :param tick_size:
+            Minimal Price Change Accuracy of this pool, eg: 10000000
+
+        :param lot_size:
+            Minimal Lot Change Accuracy of this pool, eg: 10000
+
+        :param taker_fee_rate:
+            Customized taker fee rate, float scaled by `FLOAT_SCALING_FACTOR`, Taker_fee_rate of 0.25% should be 2_500_000 for example
+
+        :param maker_rebate_rate:
+            Customized Customized maker rebate rate, float scaled by `FLOAT_SCALING_FACTOR`,  should be less than or equal to the taker_rebate_rate
+        """
+
+        txer = SuiTransaction(self.client)
+
+        splits: list = txer.split_coin(coin=txer.gas, amounts=[CREATION_FEE])
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::create_customized_pool",
+            arguments=[
+                SuiU64(str(tick_size)),
+                SuiU64(str(lot_size)),
+                SuiU64(str(taker_fee_rate)),
+                SuiU64(str(maker_rebate_rate)),
+                splits,
+            ],
+            type_arguments=[base_asset, quote_asset],
         )
         return txer
 
@@ -69,17 +123,31 @@ class DeepBookSDK:
 
         return txer
 
-    def deposit_base(
-        self, token_1: str, token_2: str, pool_id: str, coin: str, account_cap: str
-    ) -> SuiTransaction:
+    def create_child_account_cap(self, current_address: SuiAddress) -> SuiTransaction:
+        """
+        Create and Transfer child custodian account to user
+
+        :param current_address:
+            current user address, eg: "0xbddc9d4961b46a130c2e1f38585bbc6fa8077ce54bcb206b26874ac08d607966"
+        """
+
+        txer = SuiTransaction(self.client)
+
+        child_cap: list = txer.move_call(
+            target=f"{self.package_id}::{CLOB}::create_child_account_cap",
+            arguments=[],
+            type_arguments=[ObjectID(current_address)],
+        )
+
+        txer.transfer_objects(
+            transfers=[child_cap], recipient=SuiAddress(current_address)
+        )
+
+        return txer
+
+    def deposit_base(self, pool_id: str, coin: str, account_cap: str) -> SuiTransaction:
         """
         Deposit base asset into custodian account
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool(), eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -96,22 +164,16 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::deposit_base",
             arguments=[ObjectID(pool_id), ObjectID(coin), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         return txer
 
     def deposit_quote(
-        self, token_1: str, token_2: str, pool_id: str, coin: str, account_cap: str
+        self, pool_id: str, coin: str, account_cap: str
     ) -> SuiTransaction:
         """
         Deposit quote asset into custodian account
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool(), eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -128,15 +190,13 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::deposit_quote",
             arguments=[ObjectID(pool_id), ObjectID(coin), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         return txer
 
     def withdraw_base(
         self,
-        token_1: str,
-        token_2: str,
         pool_id: str,
         quantity: int,
         current_address: SuiAddress,
@@ -144,12 +204,6 @@ class DeepBookSDK:
     ) -> SuiTransaction:
         """
         Withdraw base asset from custodian account
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool, eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -169,7 +223,7 @@ class DeepBookSDK:
         withdraw = txer.move_call(
             target=f"{self.package_id}::{CLOB}::withdraw_base",
             arguments=[ObjectID(pool_id), SuiU64(quantity), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         txer.transfer_objects(
@@ -180,8 +234,6 @@ class DeepBookSDK:
 
     def withdraw_quote(
         self,
-        token_1: str,
-        token_2: str,
         pool_id: str,
         quantity: int,
         current_address: SuiAddress,
@@ -189,12 +241,6 @@ class DeepBookSDK:
     ) -> SuiTransaction:
         """
         Withdraw quote asset from custodian account
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool, eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -214,7 +260,7 @@ class DeepBookSDK:
         withdraw = txer.move_call(
             target=f"{self.package_id}::{CLOB}::withdraw_quote",
             arguments=[ObjectID(pool_id), SuiU64(quantity), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         txer.transfer_objects(
@@ -225,8 +271,6 @@ class DeepBookSDK:
 
     def swap_exact_quote_for_base(
         self,
-        token_1: str,
-        token_2: str,
         pool_id: str,
         token_object_in: str,
         amount_in: int,
@@ -235,12 +279,6 @@ class DeepBookSDK:
     ) -> SuiTransaction:
         """
         Swap exact quote for base
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool, eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -266,7 +304,7 @@ class DeepBookSDK:
                 ObjectID(normalize_sui_object_id("0x6")),
                 ObjectID(token_object_in),
             ],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         txer.transfer_objects(
@@ -281,8 +319,7 @@ class DeepBookSDK:
 
     def swap_exact_base_for_quote(
         self,
-        token_1: str,
-        token_2: str,
+        quote_asset: str,
         pool_id: str,
         token_object_in: str,
         amount_in: int,
@@ -292,11 +329,8 @@ class DeepBookSDK:
         """
         Swap exact base for quote
 
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
+        :param quote_asset:
+            Full coin type of the quote asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param pool_id:
             Object id of pool, created after invoking create_pool, eg: "0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4"
@@ -321,13 +355,13 @@ class DeepBookSDK:
                 SuiU64(str(amount_in)),
                 ObjectID(token_object_in),
                 txer.move_call(
-                    type_arguments=[token_2],  # quoteasset
+                    type_arguments=[quote_asset],  # quoteasset
                     target="0x2::coin::zero",
                     arguments=[],
                 ),
                 ObjectID(normalize_sui_object_id("0x6")),
             ],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         txer.transfer_objects(
@@ -342,8 +376,6 @@ class DeepBookSDK:
 
     def place_market_order(
         self,
-        token_1: str,
-        token_2: str,
         client_order_id: str,
         pool_id: str,
         quantity: int,
@@ -366,12 +398,8 @@ class DeepBookSDK:
                 ObjectID(quote_coin),
                 ObjectID(normalize_sui_object_id("0x6")),
             ],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
-
-        print(base_coin_ret)
-        print("----")
-        print(quote_coin_ret)
 
         txer.transfer_objects(
             transfers=[base_coin_ret], recipient=SuiAddress(current_address)
@@ -384,8 +412,6 @@ class DeepBookSDK:
 
     def place_limit_order(
         self,
-        token_1: str,
-        token_2: str,
         client_order_id: str,
         pool_id: str,
         price: int,
@@ -398,12 +424,6 @@ class DeepBookSDK:
     ) -> SuiTransaction:
         """
         Place a limit order
-
-        :param token_1:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
-
-        :param token_2:
-            Full coin type of the base asset, eg: "0x3d0d0ce17dcd3b40c2d839d96ce66871ffb40e1154a8dd99af72292b3d10d7fc::wbtc::WBTC"
 
         :param client_order_id:
             client side defined order number, eg "1", "2" etc
@@ -449,7 +469,7 @@ class DeepBookSDK:
             ObjectID(account_cap),
         ]
         txer.move_call(
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
             target=f"{self.package_id}::{CLOB}::place_limit_order",
             arguments=args,
         )
@@ -458,20 +478,12 @@ class DeepBookSDK:
 
     def cancel_order(
         self,
-        token_1: str,
-        token_2: str,
         pool_id: str,
         order_id: int,
         account_cap: str,
     ) -> SuiTransaction:
         """
         Cancel a limit order placed onto the CLOB
-
-        :param token_1:
-            Full coin type of the base asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC
-
-        :param token_2:
-           Full coin type of quote asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
 
         :param pool_id:
             Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -488,22 +500,14 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::cancel_order",
             arguments=[ObjectID(pool_id), SuiU64(order_id), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         return txer
 
-    def cancel_all_orders(
-        self, token_1: str, token_2: str, pool_id: str, account_cap: str
-    ) -> SuiTransaction:
+    def cancel_all_orders(self, pool_id: str, account_cap: str) -> SuiTransaction:
         """
         Cancel all limit orders under a certain account capacity
-
-        :param token_1:
-            Full coin type of the base asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC
-
-        :param token_2:
-           Full coin type of quote asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
 
         :param pool_id:
             Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
@@ -517,15 +521,13 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::cancel_all_orders",
             arguments=[ObjectID(pool_id), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         return txer
 
     def batch_cancel_order(
         self,
-        token_1: str,
-        token_2: str,
         pool_id: str,
         order_ids: List[str],
         account_cap: str,
@@ -533,17 +535,11 @@ class DeepBookSDK:
         """
         Cancel multiple limit orders to save gas costs.
 
-        :param token_1:
-            Full coin type of the base asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::wbtc::WBTC
-
-        :param token_2:
-           Full coin type of quote asset, eg: 0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH
-
         :param pool_id::
             Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
 
         :param order_ids:
-            orderId of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
+            Order id of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
 
         :param account_cap:
             Object id of Account Capacity under user address, created after invoking create_account()
@@ -554,7 +550,212 @@ class DeepBookSDK:
         txer.move_call(
             target=f"{self.package_id}::{CLOB}::batch_cancel_order",
             arguments=[ObjectID(pool_id), SuiArray(order_ids), ObjectID(account_cap)],
-            type_arguments=[token_1, token_2],
+            type_arguments=self.get_pool_type_args(pool_id),
         )
 
         return txer
+
+    def clean_up_expired_orders(
+        self, pool_id: str, order_ids: List[str], order_owners: List[str]
+    ) -> SuiTransaction:
+        """
+        Clean up expired orders
+
+        :param pool_id::
+            Object id of pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param order_ids:
+            Order id of a limit order, you can find them through the list_open_orders() function, for example: ["0", "1"]
+
+        :param order_owners:
+            Array of Order owners, should be the owner addresses from the account capacities which placed the orders
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::clean_up_expired_orders",
+            arguments=[
+                ObjectID(pool_id),
+                ObjectID(normalize_sui_object_id("0x6")),
+                SuiArray(order_ids),
+                SuiArray(order_owners),
+            ],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer
+
+    def get_order_status(
+        self, pool_id: str, order_id: int, account_cap: str
+    ) -> InspectTransaction:
+        """
+        Get the order status
+
+        :param pool_id:
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param order_id:
+            the order id, eg: 1
+
+        :param account_cap:
+            objectId of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::get_order_status",
+            arguments=[ObjectID(pool_id), SuiU64(str(order_id)), ObjectID(account_cap)],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer.inspect_all()
+
+    def get_market_price(self, pool_id: str) -> InspectTransaction:
+        """
+        Get Market Price
+
+         :param pool_id:
+             object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+        """
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::get_market_price",
+            arguments=[
+                ObjectID(pool_id),
+            ],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer.inspect_all()
+
+    def get_user_position(self, pool_id: str, account_cap: str) -> InspectTransaction:
+        """
+        Get the base and quote token in custodian account
+
+        :param pool_id:
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param account_cap:
+            object id of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::account_balance",
+            arguments=[ObjectID(pool_id), ObjectID(account_cap)],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer.inspect_all()
+
+    def list_open_orders(self, pool_id: str, account_cap: str) -> InspectTransaction:
+        """
+        Get the open orders of the current user
+
+        :param pool_id:
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param account_cap:
+            object id of the accountCap, created by invoking create_account, eg: 0x6f699fef193723277559c8f499ca3706121a65ac96d273151b8e52deb29135d3
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::list_open_orders",
+            arguments=[ObjectID(pool_id), ObjectID(account_cap)],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer.inspect_all()
+
+    def get_level2_book_status(
+        self, pool_id: str, lower_price: int, higher_price: int, is_bid_side: bool
+    ) -> InspectTransaction:
+        """
+        Get level2 book status
+
+        :param pool_id:
+            object id of the pool, created after invoking create_pool(), eg: 0xcaee8e1c046b58e55196105f1436a2337dcaa0c340a7a8c8baf65e4afb8823a4
+
+        :param lower_price:
+            lower price you want to query in the level2 book, eg: 18000000000
+
+        :param higher_price:
+            higher price you want to query in the level2 book, eg: 20000000000
+
+        :param is_bid_side:
+            is_bid_side true: query bid side, false: query ask side
+
+        """
+
+        txer = SuiTransaction(self.client)
+
+        txer.move_call(
+            target=f"{self.package_id}::{CLOB}::get_level2_book_status_bid_side"
+            if is_bid_side
+            else f"{self.package_id}::{CLOB}::get_level2_book_status_ask_side",
+            arguments=[
+                ObjectID(pool_id),
+                SuiU64(str(lower_price)),
+                SuiU64(str(higher_price)),
+                ObjectID(normalize_sui_object_id("0x6")),
+            ],
+            type_arguments=self.get_pool_type_args(pool_id),
+        )
+
+        return txer.inspect_all()
+
+    def get_all_pools(self) -> list[str]:
+        """Get all deepbook pools"""
+
+        response = self.client.execute(
+            QueryEvents(
+                query=MoveEventTypeQuery(f"{self.package_id}::{CLOB}::PoolCreated")
+            )
+        )
+
+        return response._data.__dict__
+
+    def get_pool_info(self, pool_id: ObjectID) -> dict:
+        """
+        Get pool id, base asset type & quote asset type
+
+        :param pool_id:
+            Object ID of pool, e.g "0x417a1101ea707f69826faa51902b0e6b374097c3ae142d8f7e0ba883dae5bfc3".
+        """
+
+        response = handle_result(self.client.get_object(pool_id))
+
+        if response.content.data_type != "moveObject":
+            return f"Pool {pool_id} does not exist"
+
+        parsed_response = parse_struct(response.content.type_)
+
+        return dict(
+            pool_id=pool_id,
+            base_asset=parsed_response[0],
+            quote_asset=parsed_response[1],
+        )
+
+    def get_pool_type_args(self, pool_id: ObjectID) -> list:
+        """
+        Get pool type arguments -> base asset type and quote asset type
+
+        :param pool_id:
+            Object ID of pool, e.g "0x417a1101ea707f69826faa51902b0e6b374097c3ae142d8f7e0ba883dae5bfc3".
+        """
+        response = self.get_pool_info(pool_id)
+
+        [base_asset_type, quote_asset_type] = (
+            response["base_asset"],
+            response["quote_asset"],
+        )
+
+        return [base_asset_type, quote_asset_type]

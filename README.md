@@ -1,15 +1,12 @@
-# Community Sui DeepBook Python SDK
+# Sui DeepBook Python SDK
 Python DeepBook Client SDK for Sui blockchain - built by community with [pysui](https://github.com/FrankC01/pysui/)
-
-> **_This package is still in active development. Use at your own risk._**
 
 ## Python Sui DeepBook SDK Parameters
 ```py
 from deepbookpy.utils.normalizer import normalize_sui_object_id
 
-DEEPBOOK_PACKAGE_ID = "https://explorer.sui.io/object/0x000000000000000000000000000000000000000000000000000000000000dee9"
-
 CLOCK = normalize_sui_object_id("0x6")
+DEEPBOOK_PACKAGE_ID = normalize_sui_object_id("dee9")
 
 ```
 ## Install deepbookpy
