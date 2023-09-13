@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pysui = "^0.32.0"
+pysui = "^0.35.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.0"
