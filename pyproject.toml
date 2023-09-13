@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deepbookpy"
-version = "0.4.0"
+version = "0.4.1"
 description = "Sui Deepbook Python SDK"
 authors = ["andreidev1 <andreid.dev@gmail.com>"]
 readme = "README.md"
