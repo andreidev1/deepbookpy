@@ -24,3 +24,15 @@ class SelfMatchingPreventionStyle:
 
     # Cancel older (resting) order in full. Continue to execute the newer taking order.
     CANCEL_OLDEST = 0
+
+@dataclass
+class Coin:
+    address: str,
+    type: str,
+    scalar: int
+
+@dataclass
+class Pool:
+    address: str,
+    base_coin: str,
+    quote_coin: str
