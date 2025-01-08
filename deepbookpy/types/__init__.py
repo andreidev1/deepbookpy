@@ -27,12 +27,12 @@ class SelfMatchingPreventionStyle:
 
 @dataclass
 class Coin:
-    address: str,
-    type: str,
+    address: str
+    type: str
     scalar: int
 
 @dataclass
 class Pool:
-    address: str,
-    base_coin: str,
+    address: str
+    base_coin: str
     quote_coin: str
