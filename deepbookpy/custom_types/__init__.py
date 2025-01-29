@@ -1,29 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, Optional
 
-
-@dataclass
-class LimitOrderType:
-    """Type of restriction for a limit order"""
-
-    # Fill as much quantity as possible in the current transaction as taker, and inject the remaining as a maker order.
-    NO_RESTRICTION = 0
-
-    # Fill as much quantity as possible in the current transaction as taker, and cancel the rest of the order.
-    IMMEDIATE_OR_CANCEL = 1
-
-    # Only fill if the entire order size can be filled as taker in the current transaction. Otherwise, abort the entire transaction.
-    FILL_OR_KILL = 2
-
-    # Only proceed if the entire order size can be posted to the order book as maker in the current transaction. Otherwise, abort the entire transaction.
-    POST_OR_ABORT = 3
-
-
-@dataclass
-class SelfMatchingPreventionStyle:
-    """Matching prevention style"""
-
-    # Cancel older (resting) order in full. Continue to execute the newer taking order.
-    CANCEL_OLDEST = 0
 
 @dataclass
 class Coin:
@@ -36,3 +12,15 @@ class Pool:
     address: str
     base_coin: str
     quote_coin: str
+
+@dataclass
+class CreatePoolAdminParams:
+    base_coin_key: str
+    quote_coin_key: str
+    tick_size: int
+    lot_size: int
+    min_size: int
+    whitelisted: bool
+    stable_pool: bool
+    deep_coin: Optional[object] = None
+    base_coin: Optional[object] = None
