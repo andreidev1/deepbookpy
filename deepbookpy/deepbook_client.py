@@ -14,14 +14,21 @@ from pysui.sui.sui_builders.get_builders import QueryEvents
 
 
 from deepbookpy.utils.normalizer import normalize_sui_object_id, normalize_sui_address
+from deepbookpy.utils.config import DeepBookConfig
+from deepbookpy.transactions.balance_manager import BalanceManagerContract
+from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
+from deepbookpy.transactions.deepbook import DeepBookContract
+from deepbookpy.transactions.flash_loans import FlashLoanContract
+from deepbookpy.transactions.governance import GovernanceContract
 from deepbookpy.utils.constants import CLOB, CREATION_FEE
 from deepbookpy.utils.helpers import parse_struct
 
 
 class DeepBookClient:
+
     """DeepBookClient class for managing DeepBook operations"""
 
-   def __init__(self, client, address, env, balance_managers=None, coins=None, pools=None, admin_cap=None):
+    def __init__(self, client, address, env, balance_managers=None, coins=None, pools=None, admin_cap=None):
         """
         Initializes the DeepBookClient class.
 
