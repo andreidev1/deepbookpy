@@ -24,3 +24,11 @@ class CreatePoolAdminParams:
     stable_pool: bool
     deep_coin: Optional[object] = None
     base_coin: Optional[object] = None
+
+@dataclass
+class ProposalParams:
+    pool_key: str
+    balance_manager_key: str
+    taker_fee: float
+    maker_fee: float
+    stake_required: int

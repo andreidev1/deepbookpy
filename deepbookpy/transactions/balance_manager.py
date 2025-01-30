@@ -11,3 +11,14 @@ class BalanceManagerContract:
         :param config: Configuration for BalanceManagerContract
         """
         self.__config = config
+
+    def generate_proof(self, tx: SuiTransaction, manager_key: str) -> SuiTransaction:
+        """
+        Generate a trade proof for the BalanceManager. Calls the appropriate function based on whether tradeCap is set.
+
+        :param manager_key: key of the BalanceManagerr
+        """
+
+        balance_manager = self.__config.get_balance_manager(manager_key)
+
+        

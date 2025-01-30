@@ -3,9 +3,8 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 
-from deepbookpy.utils.config import DeepBookConfig
-
-FLOAT_SCALAR = 1000000000
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.custom_types import CreatePoolAdminParams
 
 class DeepBookAdminContract:
     def __init__(self, config: DeepBookConfig):
@@ -28,20 +27,21 @@ class DeepBookAdminContract:
             raise EnvironmentError('ADMIN_CAP environment variable not set')
         return admin_cap
 
-    def create_pool_admin(self, tx: SuiTransaction, params) -> SuiTransaction:
+    def create_pool_admin(self, tx: SuiTransaction, params: CreatePoolAdminParams) -> SuiTransaction:
         """
         Create a new pool as admin
 
         :param params: parameters for creating pool as admin
         
         """
-        base_coin_key = params[""]
-        quote_coin_key = params[""]
-        tick_size = params[""]
-        lot_size = params[""]
-        min_size = params[""]
-        whitelisted = params[""]
-        stable_pool = params[""]
+        base_coin_key = params.base_coin_key
+        quote_coin_key = params.quote_coin_key
+        tick_size = params.tick_size
+        lot_size = params.lot_size
+        min_size = params.min_size
+        whitelisted = params.whitelisted
+        stable_pool = params.stable_pool
+
         base_coin = self.__config.get_coin(base_coin_key)
         quote_coin = self.__config.get_coin(quote_coin_key)
         
