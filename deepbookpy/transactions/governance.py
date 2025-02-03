@@ -28,9 +28,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-        #TO DO
-        trade_proof = ""
-
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         base_coin = self.__config.get_coin(pool.base_coin)
         quote_coin = self.__config.get_coin(pool.quote_coin)
@@ -63,9 +61,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-        #TO DO
-        trade_proof = ""
-
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         base_coin = self.__config.get_coin(pool.base_coin)
         quote_coin = self.__config.get_coin(pool.quote_coin)
@@ -100,9 +96,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-        #TO DO
-        trade_proof = ""
-
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         base_coin = self.__config.get_coin(pool.base_coin)
         quote_coin = self.__config.get_coin(pool.quote_coin)
@@ -139,9 +133,7 @@ class GovernanceContract:
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
 
-        #TO DO
-        trade_proof = ""
-
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         base_coin = self.__config.get_coin(pool.base_coin)
         quote_coin = self.__config.get_coin(pool.quote_coin)
