@@ -1,4 +1,18 @@
-from dataclasses import dataclass, Optional
+from dataclasses import dataclass, Optional, Union
+from enum import Enum
+
+
+class SelfMatchingOptions(Enum):
+    SELF_MATCHING_ALLOWED = 0
+    CANCEL_TAKER = 1
+    CANCEL_MAKER = 2
+
+
+class OrderType(Enum):
+    NO_RESTRICTION = 0
+    IMMEDIATE_OR_CANCEL = 1
+    FILL_OR_KILL = 2
+    POST_ONLY = 3
 
 
 @dataclass
@@ -32,3 +46,36 @@ class ProposalParams:
     taker_fee: float
     maker_fee: float
     stake_required: int
+
+@dataclass
+class PlaceLimitOrderParams:
+    pool_key: str
+    balance_manager_key: str
+    client_order_id: str
+    price: float
+    quantity: float
+    is_bid: bool
+    expiration: Optional[Union[int, float]] = None
+    order_type: Optional[OrderType] = None
+    self_matching_option: Optional[SelfMatchingOptions] = None
+    pay_with_deep: Optional[bool] = None
+
+@dataclass
+class PlaceMarketOrderParams:
+    pool_key: str
+    balance_manager_key: str
+    client_order_id: str
+    quantity: float
+    is_bid: bool
+    self_matching_option: Optional[SelfMatchingOptions] = None 
+    pay_with_deep: Optional[bool] = None
+
+@dataclass
+class SwapParams:
+    pool_key: str
+    amount: float
+    deep_amount: float
+    min_out: float
+    deep_coin: Optional['TransactionObjectArgument'] = None
+    base_coin: Optional['TransactionObjectArgument'] = None
+    quote_coin: Optional['TransactionObjectArgument'] = None
