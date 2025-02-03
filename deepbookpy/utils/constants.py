@@ -1,18 +1,11 @@
 from typing import TypedDict, Dict
 from dataclasses import dataclass
-from deepbookpy.types import Coin, Pool
+from deepbookpy.custom_types import Coin, Pool
+from deepbookpy.utils.normalizer import normalize_sui_object_id
 
 """Sui Constants"""
 
-CLOB = "clob_v2"
-
-CUSTODIAN = "custodian_v2"
-
-CREATION_FEE = 100_000_000_000
-
-ORDER_DEFAULT_EXPIRATION_IN_MS = 1000 * 60 * 60 * 24  # 24 hours
-
-
+CLOCK = normalize_sui_object_id("0x6")
 
 @dataclass
 class DeepbookPackageIds(TypedDict):

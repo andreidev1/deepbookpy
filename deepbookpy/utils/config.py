@@ -1,3 +1,4 @@
+from deepbookpy.transactions.balance_manager import BalanceManagerContract
 from constants import mainnet_coins, mainnet_pools, mainnet_package_ids, testnet_coins, testnet_pools, testnet_package_ids
 from normalizer import normalize_sui_address
 
@@ -58,9 +59,4 @@ class DeepBookConfig:
         if manager_key not in self.balance_managers:
             raise KeyError(f"Balance manager with key {manager_key} not found.")
         return self.balance_managers[manager_key]
-
-class BalanceManagerContract:
-    def __init__(self, config):
-        # Initialize the BalanceManagerContract with the configuration
-        self.config = config
 
