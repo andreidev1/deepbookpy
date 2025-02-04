@@ -3,8 +3,8 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 
-from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
-from deepbookpy.custom_types import CreatePoolAdminParams
+from utils.config import DeepBookConfig, FLOAT_SCALAR
+from custom_types import CreatePoolAdminParams
 
 class DeepBookAdminContract:
     def __init__(self, config: DeepBookConfig):
@@ -53,7 +53,7 @@ class DeepBookAdminContract:
         adjusted_min_size = min_size * base_scalar
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::create_pool_admin",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::create_pool_admin",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiU64(adjusted_tick_size),
@@ -63,7 +63,7 @@ class DeepBookAdminContract:
                 SuiBoolean(stable_pool),
                 ObjectID(self.__admin_cap)
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
@@ -76,17 +76,17 @@ class DeepBookAdminContract:
         """
 
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::unregister_pool_admin",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::unregister_pool_admin",
             arguments=[
                 ObjectID(pool.address),
                 ObjectID(self.__config.REGISTRY_ID),
                 ObjectID(self.__admin_cap)
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
@@ -99,17 +99,17 @@ class DeepBookAdminContract:
         """
         
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::update_allowed_versions",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::update_allowed_versions",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool["address"]),
                 ObjectID(self.__config.REGISTRY_ID),
                 ObjectID(self.__admin_cap)
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
@@ -122,7 +122,7 @@ class DeepBookAdminContract:
         """
         
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::registry::enable_version",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::enable_version",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiU64(version),
@@ -140,7 +140,7 @@ class DeepBookAdminContract:
         """
         
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::registry::disable_version",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::disable_version",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiU64(version),
@@ -158,7 +158,7 @@ class DeepBookAdminContract:
         """
         
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::registry::set_treasury_address",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::set_treasury_address",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiAddress(treasury_address),

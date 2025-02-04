@@ -1,7 +1,7 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 
-from deepbookpy.utils.config import DeepBookConfig
+from utils.config import DeepBookConfig
 
 class FlashLoanContract:
     def __init__(self, config: DeepBookConfig):
@@ -22,14 +22,14 @@ class FlashLoanContract:
          
         """
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(borrow_amount * base_coin.scalar)
 
         base_coin_result, flash_loan = tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::borrow_flashloan_base",
-            arguments=[ObjectID(pool.address), SuiU64(input_quantity)],
-            type_arguments=[base_coin.type, quote_coin.type],
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::borrow_flashloan_base",
+            arguments=[ObjectID(pool['address']), SuiU64(input_quantity)],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return base_coin_result, flash_loan
@@ -45,16 +45,16 @@ class FlashLoanContract:
         
         """
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         borrow_scalar = base_coin.scalar
 
         [base_coin_return] = tx.split_coin(coin=base_coin_input, amounts=[SuiU64(round(borrow_amount * borrow_scalar))])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::return_flashloan_base",
-            arguments=[ObjectID(pool.address), base_coin_return, flash_loan],
-            type_arguments=[base_coin.type, quote_coin.type],
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::return_flashloan_base",
+            arguments=[ObjectID(pool['address']), base_coin_return, flash_loan],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return base_coin_input
@@ -70,14 +70,14 @@ class FlashLoanContract:
         
         """
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(borrow_amount * quote_coin.scalar)
 
         [quote_coin_result, flash_loan] = tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::borrow_flashloan_quote",
-            arguments=[ObjectID(pool.address), SuiU64(input_quantity)],
-            type_arguments=[base_coin.type, quote_coin.type]
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::borrow_flashloan_quote",
+            arguments=[ObjectID(pool['address']), SuiU64(input_quantity)],
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return [quote_coin_result, flash_loan]
@@ -94,8 +94,8 @@ class FlashLoanContract:
         """
 
         pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         borrow_scalar = quote_coin.scalar
 
         [quote_coin_return] = tx.split_coin(
@@ -103,9 +103,9 @@ class FlashLoanContract:
         )
 
         tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::return_flashloan_quote",
-            arguments=[ObjectID(pool.address), quote_coin_return, flash_loan],
-            type_arguments=[base_coin.type, quote_coin.type]
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::return_flashloan_quote",
+            arguments=[ObjectID(pool['address']), quote_coin_return, flash_loan],
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return quote_coin_input

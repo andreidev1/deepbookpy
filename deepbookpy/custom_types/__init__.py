@@ -1,4 +1,5 @@
-from dataclasses import dataclass, Optional, Union
+from dataclasses import dataclass
+from typing import Optional, Union
 from enum import Enum
 
 

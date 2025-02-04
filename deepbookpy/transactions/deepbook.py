@@ -1,9 +1,9 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU128, SuiU64, SuiU8, SuiBoolean
 
-from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
-from deepbookpy.custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
-from deepbookpy.utils.constants import CLOCK
+from utils.config import DeepBookConfig, FLOAT_SCALAR
+from custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
+from utils.constants import CLOCK
 
 
 
@@ -36,20 +36,20 @@ class DeepBookContract:
         pay_with_deep = True
 
         
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_price = round((price * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar)
         input_quantity = round(quantity * base_coin.scalar)
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::place_limit_order",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::place_limit_order",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU64(client_order_id),
                 SuiU8(order_type),
@@ -61,7 +61,7 @@ class DeepBookContract:
                 SuiU64(expiration),
                 ObjectID(CLOCK)
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -81,19 +81,19 @@ class DeepBookContract:
         pay_with_deep = True
 
         
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(quantity * base_coin.scalar)
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::place_market_order",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::place_market_order",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU64(client_order_id),
                 SuiU8(self_matching_option),
@@ -102,7 +102,7 @@ class DeepBookContract:
                 SuiBoolean(pay_with_deep),
                 ObjectID(CLOCK)
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -116,25 +116,25 @@ class DeepBookContract:
         :param order_id: order ID to modify
         :param new_quantity: new quantity for the order
         """        
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(new_quantity * base_coin.scalar)
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::modify_order",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::modify_order",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU128(order_id),
                 SuiU64(input_quantity),
                 ObjectID(CLOCK)
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -147,23 +147,23 @@ class DeepBookContract:
         :param balance_manager_key: key to identify the BalanceManager
         :param order_id: order ID to cancel
         """        
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::cancel_order",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::cancel_order",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU128(order_id),
                 ObjectID(CLOCK)
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -176,22 +176,22 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
         """        
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::cancel_all_orders",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::cancel_all_orders",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 ObjectID(CLOCK)
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -203,21 +203,21 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
         """        
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::withdraw_settled_amounts",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::withdraw_settled_amounts",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']),
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 ],
-            type_arguments=[base_coin.type, quote_coin.type],
+            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -231,24 +231,24 @@ class DeepBookContract:
         """        
         target_pool = self.__config.get_pool(target_pool_key)
         reference_pool = self.__config.get_pool(reference_pool_key)
-        target_base_coin = self.__config.get_coin(target_pool.base_coin)
-        target_quote_coin = self.__config.get_coin(target_pool.quote_coin)
-        reference_base_coin = self.__config.get_coin(reference_pool.base_coin)
-        reference_quote_coin = self.__config.get_coin(reference_pool.quote_coin)
+        target_base_coin = self.__config.get_coin(target_pool['base_coin'])
+        target_quote_coin = self.__config.get_coin(target_pool['quote_coin'])
+        reference_base_coin = self.__config.get_coin(reference_pool['base_coin'])
+        reference_quote_coin = self.__config.get_coin(reference_pool['quote_coin'])
 
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::add_deep_price_point",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::add_deep_price_point",
             arguments=[
-                ObjectID(target_pool.address),
-                ObjectID(reference_pool.address)
+                ObjectID(target_pool['address']),
+                ObjectID(reference_pool['address'])
                 ],
             type_arguments=[
-                target_base_coin.type,
-                target_quote_coin.type,
-                reference_base_coin.type,
-                reference_quote_coin.type
+                target_base_coin['type'],
+                target_quote_coin['type'],
+                reference_base_coin['type'],
+                reference_quote_coin['type']
             ],
         )
 
@@ -261,18 +261,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param order_id: order ID to get
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_order",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_order",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU128(order_id)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -284,18 +284,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param order_id: array of order IDs to retrieve.
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_orders",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_orders",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU128(order_ids)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -306,18 +306,18 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::burn_deep",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::burn_deep",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 ObjectID(self.__config.DEEP_TREASURY_ID)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -328,40 +328,43 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::mid_price",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::mid_price",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
     
-    def whitelisted(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def whitelisted(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Check if a pool is whitelisted
 
         :param pool_key: key to identify the pool
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        print("this is pool", pool)
+
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        print('this is base coin', base_coin)
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::whitelisted",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::whitelisted",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -373,19 +376,19 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param base_quantity: base quantity to convert
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
        
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_quote_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_quote_quantity",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU64(base_quantity * base_coin.scalar),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -397,18 +400,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param quote_quantity: quote quantity to convert
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU64(quote_quantity * quote_coin.scalar),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -420,18 +423,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param quote_quantity: quote quantity to convert
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU64(quote_quantity * quote_coin.scalar),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -443,18 +446,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
         """        
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         manager = self.__config.get_balance_manager(manager_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::account_open_orders",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::account_open_orders",
             arguments=[
-                ObjectID(pool.address),
-                ObjectID(manager.address)
+                ObjectID(pool['address']),
+                ObjectID(manager['address'])
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -468,20 +471,20 @@ class DeepBookContract:
         :param price_high: upper bound of the price range
         :param is_bid: whether to get bid or ask orders
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_level2_range",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_level2_range",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU64((price_low * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar),
                 SuiU64((price_high * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar),
                 SuiBoolean(is_bid),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -493,18 +496,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param tick_from_mid: number of ticks from mid price
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_level2_ticks_from_mid",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_level2_ticks_from_mid",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 SuiU64(tick_from_mid),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -516,16 +519,16 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
 
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::vault_balances",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::vault_balances",
             arguments=[
-                ObjectID(pool.address)
+                ObjectID(pool['address'])
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -537,16 +540,16 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
 
         """        
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_pool_id_by_asset",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_pool_id_by_asset",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -568,10 +571,10 @@ class DeepBookContract:
         deep_amount = params.deep_amount
         min_quote = params.min_out
 
-        pool = self._config.get_pool(pool_key)
+        pool = self.__config.get_pool(pool_key)
         deep_coin_type = self.__config.get_coin("DEEP").type
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         base_coin_input = (
             params.base_coin 
@@ -586,7 +589,7 @@ class DeepBookContract:
         min_quote_input = round(min_quote * quote_coin.scalar)
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_base_for_quote",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_base_for_quote",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 base_coin_input,
@@ -594,7 +597,7 @@ class DeepBookContract:
                 SuiU64(min_quote_input),
                 ObjectID(CLOCK)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -605,17 +608,17 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         """
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::pool_book_params",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::pool_book_params",
             arguments=[
-                ObjectID(pool.address)
+                ObjectID(pool['address'])
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -627,18 +630,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
         """
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         manager_id = self.__config.get_balance_manager(manager_key).address
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::account",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::account",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 ObjectID(manager_id)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -650,18 +653,18 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
         """
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         manager_id = self.__config.get_balance_manager(manager_key).address
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::locked_balance",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::locked_balance",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool['address']),
                 ObjectID(manager_id)
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx
@@ -672,16 +675,16 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         """
-        pool = self._config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::get_order_deep_price",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_order_deep_price",
             arguments=[
-                ObjectID(pool.address)
+                ObjectID(pool['address'])
                 ],
-           type_arguments=[base_coin.type, quote_coin.type],
+           type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
         return tx

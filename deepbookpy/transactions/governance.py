@@ -3,8 +3,8 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 
-from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
-from deepbookpy.custom_types import ProposalParams
+from utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
+from custom_types import ProposalParams
 
 class GovernanceContract:
     def __init__(self, config: DeepBookConfig):
@@ -30,21 +30,21 @@ class GovernanceContract:
         
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
         stake_input = round(stake_amount * DEEP_SCALAR)
 
 
         tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::stake",
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::stake",
             arguments=
             [
-                ObjectID(pool.address), 
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']), 
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU64(stake_input)
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return tx
@@ -63,19 +63,19 @@ class GovernanceContract:
         
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
 
         tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::unstake",
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::unstake",
             arguments=
             [
-                ObjectID(pool.address), 
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']), 
+                ObjectID(balance_manager['address']),
                 trade_proof,
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return tx
@@ -98,22 +98,22 @@ class GovernanceContract:
         
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
 
         tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::submit_proposal",
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::submit_proposal",
             arguments=
             [
-                ObjectID(pool.address), 
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']), 
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 SuiU64(round(taker_fee * FLOAT_SCALAR)),
                 SuiU64(round(maker_fee * FLOAT_SCALAR)),
                 SuiU64(round(stake_required * DEEP_SCALAR)),
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return tx
@@ -135,20 +135,20 @@ class GovernanceContract:
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
-        base_coin = self.__config.get_coin(pool.base_coin)
-        quote_coin = self.__config.get_coin(pool.quote_coin)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
 
 
         tx.move_call(
-            target=f"{self._config.DEEPBOOK_PACKAGE_ID}::pool::vote",
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::vote",
             arguments=
             [
-                ObjectID(pool.address), 
-                ObjectID(balance_manager.address),
+                ObjectID(pool['address']), 
+                ObjectID(balance_manager['address']),
                 trade_proof,
                 ObjectID(proposal_id)
             ],
-            type_arguments=[base_coin.type, quote_coin.type]
+            type_arguments=[base_coin['type'], quote_coin['type']]
         )
 
         return tx

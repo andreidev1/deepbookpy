@@ -4,6 +4,7 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64
 
 from deepbookpy.utils.config import DeepBookConfig
 
+
 class BalanceManagerContract:
     def __init__(self, config: DeepBookConfig):
         """
@@ -19,13 +20,13 @@ class BalanceManagerContract:
         """
         
         manager = tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::new",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::new",
         )
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::new",
-            arguments=[],
-            type_arguments=[]
+            target = "0x2::transfer::public_share_object",
+            arguments=[manager],
+            type_arguments=[f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::BalanceManager"]
         )
 
 
@@ -40,15 +41,15 @@ class BalanceManagerContract:
         :param amount_to_deposit: amount to deposit
         """
 
-        manager_id = self._config.get_balance_manager(manager_key).address
-        coin = self._config.get_coin(coin_key)
+        manager_id = self.__config.get_balance_manager(manager_key)['address']
+        coin = self.__config.get_coin(coin_key)
         deposit_input = round(amount_to_deposit * coin.scalar)
 
         #TO DO
         deposit = ""
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
             arguments=[ObjectID(manager_id), deposit],
             type_arguments=[coin.type]
         )
@@ -66,12 +67,12 @@ class BalanceManagerContract:
         :param recipient: recipient of the withdrawn funds
         """
 
-        manager_id = self._config.get_balance_manager(manager_key).address
-        coin = self._config.get_coin(coin_key)
+        manager_id = self.__config.get_balance_manager(manager_key)['address']
+        coin = self.__config.get_coin(coin_key)
         withdraw_input = round(amount_to_withdraw * coin.scalar)
         
         coin_object = tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
             arguments=[ObjectID(manager_id), SuiU64(withdraw_input)],
             type_arguments=[coin.type]
         )
@@ -104,7 +105,7 @@ class BalanceManagerContract:
         """
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::generate_proof_as_owner",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::generate_proof_as_owner",
             arguments=[ObjectID(manager_id)]
         )
 
@@ -119,7 +120,7 @@ class BalanceManagerContract:
         """
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::generate_proof_as_trader",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::generate_proof_as_trader",
             arguments=[ObjectID(manager_id), ObjectID(trade_cap_id)]
         )
 
@@ -132,10 +133,10 @@ class BalanceManagerContract:
         :param manager_id: key of the BalanceManager
         """
 
-        manager_id = self._config.get_balance_manager(manager_key).address
+        manager_id = self.__config.get_balance_manager(manager_key)['address']
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::owner",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::owner",
             arguments=[ObjectID(manager_id)]
         )
 
@@ -148,10 +149,10 @@ class BalanceManagerContract:
         :param manager_id: key of the BalanceManager
         """
 
-        manager_id = self._config.get_balance_manager(manager_key).address
+        manager_id = self.__config.get_balance_manager(manager_key)['address']
 
         tx.move_call(
-            target = f"{self._config.DEEPBOOK_PACKAGE_ID}::balance_manager::id",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::id",
             arguments=[ObjectID(manager_id)]
         )
 
