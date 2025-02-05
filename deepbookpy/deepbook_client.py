@@ -1,4 +1,5 @@
 """DeepBook Python SDK"""
+import warnings
 from typing import List
 
 from canoser import BoolT
@@ -8,32 +9,28 @@ from pysui.sui.sui_clients.common import handle_result
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_types.collections import SuiArray
-from pysui.sui.sui_types.event_filter import MoveEventTypeQuery
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
-from pysui.sui.sui_builders.exec_builders import InspectTransaction
-from pysui.sui.sui_builders.get_builders import QueryEvents
-from pysui import SuiConfig, SyncClient
-from pysui.sui.sui_txn import SyncTransaction
+from pysui import SyncClient
 
 
-from utils.normalizer import normalize_sui_address
-from utils.config import DeepBookConfig
-from transactions.balance_manager import BalanceManagerContract
-from transactions.deepbook_admin import DeepBookAdminContract
-from transactions.deepbook import DeepBookContract
-from transactions.flash_loans import FlashLoanContract
-from transactions.governance import GovernanceContract
+from deepbookpy.utils.normalizer import normalize_sui_address
+from deepbookpy.utils.config import DeepBookConfig
+from deepbookpy.transactions.balance_manager import BalanceManagerContract
+from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
+from deepbookpy.transactions.deepbook import DeepBookContract
+from deepbookpy.transactions.flash_loans import FlashLoanContract
+from deepbookpy.transactions.governance import GovernanceContract
 
-
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 class DeepBookClient:
 
     """DeepBookClient class for managing DeepBook operations"""
 
-    def __init__(self, client: SuiClient, address, env, balance_managers=None, coins=None, pools=None, admin_cap=None):
+    def __init__(self, client: SyncClient, address, env, balance_managers=None, coins=None, pools=None, admin_cap=None):
         """
         Initializes the DeepBookClient class.
 
-        :param client: SuiClient instance
+        :param client: SyncClient instance
         :param address: Address of the client
         :param env: Environment configuration
         :param balance_managers: Optional initial balance managers map
@@ -52,8 +49,8 @@ class DeepBookClient:
             admin_cap=admin_cap,
         )
         self.balance_manager = BalanceManagerContract(self._config)
-        self.deep_book = DeepBookContract(self._config)
-        self.deep_book_admin = DeepBookAdminContract(self._config)
+        self.deepbook = DeepBookContract(self._config)
+        self.deepbook_admin = DeepBookAdminContract(self._config)
         self.flash_loans = FlashLoanContract(self._config)
         self.governance = GovernanceContract(self._config)
 
@@ -68,15 +65,15 @@ class DeepBookClient:
         #res = self.client.devInspect
         pass
 
-    def whitelisted(self, tx: SuiTransaction, pool_key: str):
+    def whitelisted(self, pool_key: str, tx: SuiTransaction) -> bool:
         """
         Check if pool is whitelisted
 
         :param pool_key: key of the pool
         """
+        self.deepbook.whitelisted(pool_key, tx)
 
-        result = tx.inspect_all(self.deep_book.whitelisted(tx, pool_key))
-        result = self.deep_book.whitelisted(pool_key, tx)
+        result = tx.inspect_all().results
         result_bytes = result[0]["returnValues"][0][0]
 
         whitelisted = BoolT.deserialize(bytes(result_bytes))

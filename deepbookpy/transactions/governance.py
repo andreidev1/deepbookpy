@@ -3,8 +3,8 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 
-from utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
-from custom_types import ProposalParams
+from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
+from deepbookpy.custom_types import ProposalParams
 
 class GovernanceContract:
     def __init__(self, config: DeepBookConfig):

@@ -1,9 +1,9 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU128, SuiU64, SuiU8, SuiBoolean
 
-from utils.config import DeepBookConfig, FLOAT_SCALAR
-from custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
-from utils.constants import CLOCK
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
+from deepbookpy.utils.constants import CLOCK
 
 
 
@@ -351,18 +351,13 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         """        
         pool = self.__config.get_pool(pool_key)
-        print("this is pool", pool)
-
         base_coin = self.__config.get_coin(pool['base_coin'])
-        print('this is base coin', base_coin)
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-       
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::whitelisted",
             arguments=[
-                ObjectID(pool['address']),
-                ObjectID(CLOCK)
+                ObjectID(pool['address'])
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
         )

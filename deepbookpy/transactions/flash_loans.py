@@ -1,7 +1,7 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 
-from utils.config import DeepBookConfig
+from deepbookpy.utils.config import DeepBookConfig
 
 class FlashLoanContract:
     def __init__(self, config: DeepBookConfig):

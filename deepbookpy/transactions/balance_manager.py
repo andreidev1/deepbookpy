@@ -2,11 +2,9 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64
 
-from deepbookpy.utils.config import DeepBookConfig
-
 
 class BalanceManagerContract:
-    def __init__(self, config: DeepBookConfig):
+    def __init__(self, config):
         """
         BalanceManagerContract class for managing BalanceManager operations
 

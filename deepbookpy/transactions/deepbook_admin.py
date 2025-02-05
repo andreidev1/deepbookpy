@@ -2,9 +2,8 @@ from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
-
-from utils.config import DeepBookConfig, FLOAT_SCALAR
-from custom_types import CreatePoolAdminParams
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.custom_types import CreatePoolAdminParams
 
 class DeepBookAdminContract:
     def __init__(self, config: DeepBookConfig):
