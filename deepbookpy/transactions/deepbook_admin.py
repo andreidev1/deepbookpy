@@ -26,7 +26,7 @@ class DeepBookAdminContract:
             raise EnvironmentError('ADMIN_CAP environment variable not set')
         return admin_cap
 
-    def create_pool_admin(self, tx: SuiTransaction, params: CreatePoolAdminParams) -> SuiTransaction:
+    def create_pool_admin(self, params: CreatePoolAdminParams, tx: SuiTransaction) -> SuiTransaction:
         """
         Create a new pool as admin
 
@@ -67,7 +67,7 @@ class DeepBookAdminContract:
 
         return tx
     
-    def unregister_pool_admin(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def unregister_pool_admin(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Unregister a pool as admin
         
@@ -90,7 +90,7 @@ class DeepBookAdminContract:
 
         return tx
     
-    def updated_allowed_versions(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction :
+    def updated_allowed_versions(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction :
         """
         Update the allowed versions for a pool
 
@@ -113,7 +113,7 @@ class DeepBookAdminContract:
 
         return tx
     
-    def enable_version(self, tx: SuiTransaction, version: int) -> SuiTransaction:
+    def enable_version(self, version: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Enable a specific transaction
 
@@ -131,7 +131,7 @@ class DeepBookAdminContract:
 
         return tx
     
-    def disable_version(self, tx: SuiTransaction, version: int) -> SuiTransaction:
+    def disable_version(self, version: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Disable a specific transaction
 
@@ -149,7 +149,7 @@ class DeepBookAdminContract:
 
         return tx
     
-    def set_treasury_address(self, tx: SuiTransaction, treasury_address: int) -> SuiTransaction:
+    def set_treasury_address(self, treasury_address: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Sets the treasury address where pool creation fees will be sent
 

@@ -16,7 +16,7 @@ class GovernanceContract:
         """
         self.__config = config
 
-    def stake(self, tx: SuiTransaction, pool_key:str, balance_manager_key: str, stake_amount: int) -> SuiTransaction:
+    def stake(self, pool_key:str, balance_manager_key: str, stake_amount: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Stake a specified amount in the pool
 
@@ -49,7 +49,7 @@ class GovernanceContract:
 
         return tx
     
-    def unstake(self, tx: SuiTransaction, pool_key:str, balance_manager_key: str) -> SuiTransaction:
+    def unstake(self, pool_key:str, balance_manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Unstake a specified amount from the pool
 
@@ -80,7 +80,7 @@ class GovernanceContract:
 
         return tx
     
-    def submit_proposal(self, tx: SuiTransaction, params: ProposalParams) -> SuiTransaction:
+    def submit_proposal(self, params: ProposalParams, tx: SuiTransaction) -> SuiTransaction:
         """
         Submit a governance proposal
 
@@ -119,7 +119,7 @@ class GovernanceContract:
         return tx
     
 
-    def vote(self, tx: SuiTransaction, pool_key: str, balance_manager_key: str, proposal_id: str) -> SuiTransaction:
+    def vote(self, pool_key: str, balance_manager_key: str, proposal_id: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Vote on a proposal
 

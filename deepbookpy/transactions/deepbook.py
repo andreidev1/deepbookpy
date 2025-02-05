@@ -18,7 +18,7 @@ class DeepBookContract:
         self.__config = config
 
 
-    def place_limit_order(self, tx: SuiTransaction, params: PlaceLimitOrderParams) -> SuiTransaction:
+    def place_limit_order(self, params: PlaceLimitOrderParams, tx: SuiTransaction) -> SuiTransaction:
         """
         Place a limit order
 
@@ -66,7 +66,7 @@ class DeepBookContract:
 
         return tx
 
-    def place_market_order(self, tx: SuiTransaction, params: PlaceMarketOrderParams) -> SuiTransaction:
+    def place_market_order(self, params: PlaceMarketOrderParams, tx: SuiTransaction) -> SuiTransaction:
         """
         Place a market order
 
@@ -107,7 +107,7 @@ class DeepBookContract:
 
         return tx
     
-    def modify_order(self, tx: SuiTransaction, pool_key: str, balance_manager_key: str, order_id: str, new_quantity: int) -> SuiTransaction:
+    def modify_order(self, pool_key: str, balance_manager_key: str, order_id: str, new_quantity: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Modify a placed order
 
@@ -139,7 +139,7 @@ class DeepBookContract:
 
         return tx
     
-    def cancel_order(self, tx: SuiTransaction, pool_key: str, balance_manager_key: str, order_id: str) -> SuiTransaction:
+    def cancel_order(self, pool_key: str, balance_manager_key: str, order_id: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Cancel a placed order
 
@@ -169,7 +169,7 @@ class DeepBookContract:
         return tx
     
 
-    def cancel_all_orders(self, tx: SuiTransaction, pool_key: str, balance_manager_key: str) -> SuiTransaction:
+    def cancel_all_orders(self, pool_key: str, balance_manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Cancel all placed orders
 
@@ -196,7 +196,7 @@ class DeepBookContract:
 
         return tx
     
-    def withdraw_settled_amounts(self, tx: SuiTransaction, pool_key: str, balance_manager_key: str) -> SuiTransaction:
+    def withdraw_settled_amounts(self, pool_key: str, balance_manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Withdraw settled amounts for a balance manager
 
@@ -222,7 +222,7 @@ class DeepBookContract:
 
         return tx
     
-    def add_deep_price_point(self, tx: SuiTransaction, target_pool_key: str, reference_pool_key: str) -> SuiTransaction:
+    def add_deep_price_point(self, target_pool_key: str, reference_pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Add a deep price point for a target pool using a reference pool
 
@@ -254,7 +254,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_order(self, tx: SuiTransaction, pool_key: str, order_id: str) -> SuiTransaction:
+    def get_order(self, pool_key: str, order_id: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Gets an order
 
@@ -277,7 +277,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_orders(self, tx: SuiTransaction, pool_key: str, order_ids: list[str]) -> SuiTransaction:
+    def get_orders(self, pool_key: str, order_ids: list[str], tx: SuiTransaction) -> SuiTransaction:
         """
         Prepares a transaction to retrieve multiple orders from a specified pool.
 
@@ -300,7 +300,7 @@ class DeepBookContract:
 
         return tx
     
-    def burn_deep(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def burn_deep(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Burn DEEP tokens from the pool
 
@@ -322,7 +322,7 @@ class DeepBookContract:
 
         return tx
 
-    def mid_price(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def mid_price(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the mid price for a pool
 
@@ -364,7 +364,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_quote_quantity_out(self, tx: SuiTransaction, pool_key: str, base_quantity: int) -> SuiTransaction:
+    def get_quote_quantity_out(self, pool_key: str, base_quantity: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the quote quantity out for a given base quantity in
 
@@ -388,7 +388,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_base_quantity_out(self, tx: SuiTransaction, pool_key: str, quote_quantity: int) -> SuiTransaction:
+    def get_base_quantity_out(self, pool_key: str, quote_quantity: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the base quantity out for a given quote quantity in
 
@@ -411,7 +411,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_quantity_out(self, tx: SuiTransaction, pool_key: str, quote_quantity: int) -> SuiTransaction:
+    def get_quantity_out(self, pool_key: str, quote_quantity: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the base quantity out for a given quote quantity in
 
@@ -434,7 +434,7 @@ class DeepBookContract:
 
         return tx
     
-    def account_open_orders(self, tx: SuiTransaction, pool_key: str, manager_key: int) -> SuiTransaction:
+    def account_open_orders(self, pool_key: str, manager_key: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get open orders for a balance manager in a pool
 
@@ -457,7 +457,7 @@ class DeepBookContract:
 
         return tx
 
-    def get_level2_range(self, tx: SuiTransaction, pool_key: str, price_low: int, price_high: int, is_bid: bool) -> SuiTransaction:
+    def get_level2_range(self, pool_key: str, price_low: int, price_high: int, is_bid: bool, tx: SuiTransaction) -> SuiTransaction:
         """
         Get level 2 order book specifying range of price
 
@@ -484,7 +484,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_level2_ticks_from_mid(self, tx: SuiTransaction, pool_key: str, tick_from_mid: int) -> SuiTransaction:
+    def get_level2_ticks_from_mid(self, pool_key: str, tick_from_mid: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get level 2 order book ticks from mid-price for a pool
 
@@ -507,7 +507,7 @@ class DeepBookContract:
 
         return tx
     
-    def vault_balances(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def vault_balances(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the vault balances for a pool
 
@@ -528,7 +528,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_pool_id_by_assets(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def get_pool_id_by_assets(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the pool ID by asset types
 
@@ -597,7 +597,7 @@ class DeepBookContract:
 
         return tx
     """
-    def pool_book_params(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def pool_book_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the trade parameters for a given pool, including taker fee, maker fee, and stake required.
 
@@ -618,7 +618,7 @@ class DeepBookContract:
 
         return tx
     
-    def account(self, tx: SuiTransaction, pool_key: str, manager_key: str) -> SuiTransaction:
+    def account(self, pool_key: str, manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the account information for a given pool and balance manager
 
@@ -641,7 +641,7 @@ class DeepBookContract:
 
         return tx
     
-    def locked_balance(self, tx: SuiTransaction, pool_key: str, manager_key: str) -> SuiTransaction:
+    def locked_balance(self, pool_key: str, manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the locked balance for a given pool and balance manager
 
@@ -664,7 +664,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_pool_deep_price(self, tx: SuiTransaction, pool_key: str) -> SuiTransaction:
+    def get_pool_deep_price(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the DEEP price conversion for a pool
 

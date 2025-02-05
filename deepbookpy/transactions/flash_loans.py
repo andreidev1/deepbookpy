@@ -13,7 +13,7 @@ class FlashLoanContract:
         """
         self.__config = config
 
-    def borrow_base_asset(self, tx: SuiTransaction, pool_key: str, borrow_amount: int) -> SuiTransaction:
+    def borrow_base_asset(self, pool_key: str, borrow_amount: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Borrow base asset from the pool
 
@@ -34,7 +34,7 @@ class FlashLoanContract:
 
         return base_coin_result, flash_loan
     
-    def return_base_asset(self, tx: SuiTransaction, pool_key: str, borrow_amount: int, base_coin_input: str, flash_loan: str) -> SuiTransaction:
+    def return_base_asset(self, pool_key: str, borrow_amount: int, base_coin_input: str, flash_loan: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Return base asset to the pool after a flash loan.
 
@@ -60,7 +60,7 @@ class FlashLoanContract:
         return base_coin_input
     
 
-    def borrow_quote_asset(self, tx: SuiTransaction, pool_key: str, borrow_amount: int) -> SuiTransaction:
+    def borrow_quote_asset(self, pool_key: str, borrow_amount: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Borrow quote asset from the pool
 
@@ -83,7 +83,7 @@ class FlashLoanContract:
         return [quote_coin_result, flash_loan]
     
 
-    def return_quote_asset(self, tx: SuiTransaction, pool_key:str,  borrow_amount: int, quote_coin_input: str, flash_loan: str) -> SuiTransaction:
+    def return_quote_asset(self, pool_key:str,  borrow_amount: int, quote_coin_input: str, flash_loan: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Return quote asset to the pool after a flash loan.
 
