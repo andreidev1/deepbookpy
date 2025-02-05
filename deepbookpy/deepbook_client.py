@@ -11,6 +11,7 @@ from pysui.sui.sui_types.address import SuiAddress
 from pysui.sui.sui_types.collections import SuiArray
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
 from pysui import SyncClient
+from pysui.sui.sui_txn import SyncTransaction
 
 
 from deepbookpy.utils.normalizer import normalize_sui_address
@@ -55,13 +56,15 @@ class DeepBookClient:
         self.governance = GovernanceContract(self._config)
 
 
-    def check_manager_balance(self, manager_key: str, coin_key: str, tx: SuiTransaction):
+    def check_manager_balance(self, manager_key: str, coin_key: str):
         """
         Check the balance of a balance manager for a specific coin
 
         :param manager_key: key of the balance manager
         :param coin_key: key of the coin
         """
+        tx = SyncTransaction(client=self.client)
+
         coin = self._config.get_coin(coin_key)
         self.balance_manager.check_manager_balance(manager_key, coin_key, tx)
 
@@ -73,12 +76,13 @@ class DeepBookClient:
 
         return dict(coin_type=coin["type"], balance=adjusted_balance)
 
-    def whitelisted(self, pool_key: str, tx: SuiTransaction) -> bool:
+    def whitelisted(self, pool_key: str) -> bool:
         """
         Check if pool is whitelisted
 
         :param pool_key: key of the pool
         """
+        tx = SyncTransaction(client=self.client)
         self.deepbook.whitelisted(pool_key, tx)
 
         result = tx.inspect_all().results
