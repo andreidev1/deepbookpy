@@ -54,7 +54,16 @@ if __name__ == "__main__":
     print(deepbook_config.get_balance_manager("MANAGER_1"))
 
     # call check_manager_balance method from deepbook client
-    print(deepbook_client.check_manager_balance("MANAGER_1", "SUI"))
+    #print(deepbook_client.check_manager_balance("MANAGER_1", "SUI"))
 
     # call whitelisted method from deepbook_client
-    print(deepbook_client.whitelisted("SUI_USDC"))
+    #print(deepbook_client.whitelisted("SUI_USDC"))
+
+    # call get_quote_quantity method from deepbook_client
+    #print(deepbook_client.get_quote_quantity_out("SUI_USDC", 1))
+
+    # call get_base_quantity_out method from deepbook_client
+    #print(deepbook_client.get_base_quantity_out("SUI_USDC", 1))
+
+    #call get_quantity_out method from deepbook_client
+    print(deepbook_client.get_quantity_out("SUI_USDC", 1, 5))

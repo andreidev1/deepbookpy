@@ -15,7 +15,7 @@ from pysui.sui.sui_txn import SyncTransaction
 
 
 from deepbookpy.utils.normalizer import normalize_sui_address
-from deepbookpy.utils.config import DeepBookConfig
+from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR
 from deepbookpy.transactions.balance_manager import BalanceManagerContract
 from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
@@ -92,3 +92,89 @@ class DeepBookClient:
 
         return whitelisted 
     
+    def get_quote_quantity_out(self, pool_key: str, base_quantity: int):
+        """
+        Get the quote quantity out for a given base quantity
+
+        :param pool_key: key of the pool
+        :param base_quantity: base quantity to convert
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
+        quote_scalar =self._config.get_coin(pool["quote_coin"])["scalar"]
+
+
+        self.deepbook.get_quote_quantity_out(pool_key, base_quantity, tx)
+
+        result = tx.inspect_all().results
+        base_out = Uint64.deserialize(result[0]["returnValues"][0][0])
+        quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
+        deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
+
+        return dict(
+            base_quantity=base_quantity, 
+            base_out=float(base_out / base_scalar), 
+            quote_out=float(quote_out / quote_scalar), 
+            deep_required=float(deep_required / DEEP_SCALAR)
+            ) 
+    
+    def get_base_quantity_out(self, pool_key: str, quote_quantity: int):
+        """
+        Get the base quantity out for a given quote quantity
+
+        :param pool_key: key of the pool
+        :param quote_quantity: quote quantity to convert
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
+        quote_scalar =self._config.get_coin(pool["quote_coin"])["scalar"]
+
+
+        self.deepbook.get_base_quantity_out(pool_key, quote_quantity, tx)
+
+        result = tx.inspect_all().results
+        base_out = Uint64.deserialize(result[0]["returnValues"][0][0])
+        quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
+        deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
+
+        return dict(
+            quote_quantity=quote_quantity, 
+            base_out=float(base_out / base_scalar), 
+            quote_out=float(quote_out / quote_scalar), 
+            deep_required=float(deep_required / DEEP_SCALAR)
+            )
+    
+    def get_quantity_out(self, pool_key: str, base_quantity: int, quote_quantity: int):
+        """
+        Get the output quantities for given base and quote quantities. Only one quantity can be non-zero
+
+        :param pool_key: key of the pool
+        :param base_quantity: base quantity to convert
+        :param quote_quantity: quote quantity to convert
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
+        quote_scalar = self._config.get_coin(pool["quote_coin"])["scalar"]
+
+
+        self.deepbook.get_quantity_out(pool_key, base_quantity, quote_quantity, tx)
+
+        result = tx.inspect_all().results
+        print(result)
+        base_out = Uint64.deserialize(result[0]["returnValues"][0][0])
+        quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
+        deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
+
+        return dict(
+            base_quantity=base_quantity,
+            quote_quantity=quote_quantity, 
+            base_out=float(base_out / base_scalar), 
+            quote_out=float(quote_out / quote_scalar), 
+            deep_required=float(deep_required / DEEP_SCALAR)
+            )

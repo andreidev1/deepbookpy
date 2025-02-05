@@ -40,8 +40,8 @@ class DeepBookContract:
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-        input_price = round((price * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar)
-        input_quantity = round(quantity * base_coin.scalar)
+        input_price = round((price * FLOAT_SCALAR * quote_coin["scalar"]) / base_coin["scalar"])
+        input_quantity = round(quantity * base_coin["scalar"])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
@@ -85,7 +85,7 @@ class DeepBookContract:
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-        input_quantity = round(quantity * base_coin.scalar)
+        input_quantity = round(quantity * base_coin["scalar"])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
@@ -120,7 +120,7 @@ class DeepBookContract:
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-        input_quantity = round(new_quantity * base_coin.scalar)
+        input_quantity = round(new_quantity * base_coin["scalar"])
 
         trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
 
@@ -377,10 +377,10 @@ class DeepBookContract:
        
 
         tx.move_call(
-            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_quote_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_quote_quantity_out",
             arguments=[
                 ObjectID(pool['address']),
-                SuiU64(base_quantity * base_coin.scalar),
+                SuiU64(base_quantity * base_coin["scalar"]),
                 ObjectID(CLOCK)
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
@@ -400,10 +400,10 @@ class DeepBookContract:
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity_out",
             arguments=[
                 ObjectID(pool['address']),
-                SuiU64(quote_quantity * quote_coin.scalar),
+                SuiU64(quote_quantity * quote_coin["scalar"]),
                 ObjectID(CLOCK)
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
@@ -411,7 +411,7 @@ class DeepBookContract:
 
         return tx
     
-    def get_quantity_out(self, pool_key: str, quote_quantity: int, tx: SuiTransaction) -> SuiTransaction:
+    def get_quantity_out(self, pool_key: str, base_quantity: int, quote_quantity: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the base quantity out for a given quote quantity in
 
@@ -423,10 +423,11 @@ class DeepBookContract:
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         tx.move_call(
-            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_base_quantity",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_quantity_out",
             arguments=[
                 ObjectID(pool['address']),
-                SuiU64(quote_quantity * quote_coin.scalar),
+                SuiU64(base_quantity * base_coin["scalar"]),
+                SuiU64(quote_quantity * quote_coin["scalar"]),
                 ObjectID(CLOCK)
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
@@ -474,8 +475,8 @@ class DeepBookContract:
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_level2_range",
             arguments=[
                 ObjectID(pool['address']),
-                SuiU64((price_low * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar),
-                SuiU64((price_high * FLOAT_SCALAR * quote_coin.scalar) / base_coin.scalar),
+                SuiU64((price_low * FLOAT_SCALAR * quote_coin["scalar"]) / base_coin["scalar"]),
+                SuiU64((price_high * FLOAT_SCALAR * quote_coin["scalar"]) / base_coin["scalar"]),
                 SuiBoolean(is_bid),
                 ObjectID(CLOCK)
                 ],
@@ -576,12 +577,12 @@ class DeepBookContract:
             if params.base_coin is not None 
             else coin_with_balance({
                 "type": base_coin.type, 
-                "balance": round(base_amount * base_coin.scalar)
+                "balance": round(base_amount * base_coin["scalar"])
             })
         )
         deep_coin = ""
 
-        min_quote_input = round(min_quote * quote_coin.scalar)
+        min_quote_input = round(min_quote * quote_coin["scalar"])
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_base_for_quote",
