@@ -30,7 +30,7 @@ class BalanceManagerContract:
 
         return tx
     
-    def deposit_into_manager(self, tx: SuiTransaction, manager_key: str, coin_key: str, amount_to_deposit: int) -> SuiTransaction:
+    def deposit_into_manager(self, manager_key: str, coin_key: str, amount_to_deposit: int, tx: SuiTransaction) -> SuiTransaction:
         """
         Deposit funds into the BalanceManager
 
@@ -49,13 +49,13 @@ class BalanceManagerContract:
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
             arguments=[ObjectID(manager_id), deposit],
-            type_arguments=[coin.type]
+            type_arguments=[coin["type"]]
         )
 
 
         return tx
     
-    def withdraw_from_manager(self, tx: SuiTransaction, manager_key: str, coin_key: str, amount_to_withdraw: int, recipient: str) -> SuiTransaction:
+    def withdraw_from_manager(self, manager_key: str, coin_key: str, amount_to_withdraw: int, recipient: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Withdraw funds from BalanceManager
 
@@ -70,16 +70,56 @@ class BalanceManagerContract:
         withdraw_input = round(amount_to_withdraw * coin.scalar)
         
         coin_object = tx.move_call(
-            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::withdraw",
             arguments=[ObjectID(manager_id), SuiU64(withdraw_input)],
-            type_arguments=[coin.type]
+            type_arguments=[coin["type"]]
         )
 
         tx.transfer_objects(list=[coin_object], recipient=recipient)
 
         return tx
+    
 
-    def generate_proof(self, tx: SuiTransaction, manager_key: str) -> SuiTransaction:
+    def withdraw_all_from_manager(self, manager_key: str, coin_key: str, recipient: str, tx: SuiTransaction,) -> SuiTransaction:
+        """
+        Withdraw all funds from BalanceManager
+
+        :param manager_key: key of the BalanceManger
+        :param coin_key: key of the coin to withdraw
+        :param recipient: recipient of the withdrawn funds
+        """
+
+        manager_id = self.__config.get_balance_manager(manager_key)['address']
+        coin = self.__config.get_coin(coin_key)
+        
+        coin_object = tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::withdraw_all",
+            arguments=[ObjectID(manager_id)],
+            type_arguments=[coin["type"]]
+        )
+
+        tx.transfer_objects(list=[coin_object], recipient=recipient)
+
+        return tx
+    
+    def check_manager_balance(self, manager_key: str, coin_key: str, tx : SuiTransaction) -> SuiTransaction:
+        """
+        Check the balance of the BalanceManager
+
+        :param manager_key: key of the BalanceManger
+        :param coin_key: key of the coin to check the balance of
+        """
+        
+        manager_id = self.__config.get_balance_manager(manager_key)["address"]
+        coin = self.__config.get_coin(coin_key)
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::balance",
+            arguments=[ObjectID(manager_id)],
+            type_arguments=[coin["type"]]
+        )
+
+    def generate_proof(self, manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Generate a trade proof for the BalanceManager. Calls the appropriate function based on whether tradeCap is set.
 
@@ -95,7 +135,7 @@ class BalanceManagerContract:
             return self.generate_proof_as_owner(tx, balance_manager.address)
 
     
-    def generate_proof_as_owner(self, tx: SuiTransaction, manager_id: str) -> SuiTransaction:
+    def generate_proof_as_owner(self, manager_id: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Generate a trade proof as the owner
 
@@ -109,7 +149,7 @@ class BalanceManagerContract:
 
         return tx
     
-    def generate_proof_as_trader(self, tx: SuiTransaction, manager_id: str, trade_cap_id: str) -> SuiTransaction:
+    def generate_proof_as_trader(self, manager_id: str, trade_cap_id: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Generate a trade proof as a trader
 
@@ -124,7 +164,7 @@ class BalanceManagerContract:
 
         return tx
     
-    def owner(self, tx: SuiTransaction, manager_key: str) -> SuiTransaction:
+    def owner(self, manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the owner of the BalanceManager
 
@@ -140,7 +180,7 @@ class BalanceManagerContract:
 
         return tx
     
-    def id(self, tx: SuiTransaction, manager_key: str) -> SuiTransaction:
+    def id(self, manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the ID of the BalanceManager
 
