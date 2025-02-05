@@ -2,7 +2,7 @@
 import warnings
 from typing import List
 
-from canoser import BoolT
+from canoser import BoolT, Uint64
 
 from pysui.sui.sui_clients.sync_client import SuiClient
 from pysui.sui.sui_clients.common import handle_result
@@ -55,15 +55,23 @@ class DeepBookClient:
         self.governance = GovernanceContract(self._config)
 
 
-    def check_manager_balance(self, tx: SuiTransaction, manager_key: str, coin_key: str):
+    def check_manager_balance(self, manager_key: str, coin_key: str, tx: SuiTransaction):
         """
         Check the balance of a balance manager for a specific coin
 
         :param manager_key: key of the balance manager
         :param coin_key: key of the coin
         """
-        #res = self.client.devInspect
-        pass
+        coin = self._config.get_coin(coin_key)
+        self.balance_manager.check_manager_balance(manager_key, coin_key, tx)
+
+        result = tx.inspect_all().results
+        result_bytes = result[0]["returnValues"][0][0]
+
+        parsed_balance = Uint64.deserialize(bytes(result_bytes))
+        adjusted_balance = parsed_balance / coin["scalar"]
+
+        return dict(coin_type=coin["type"], balance=adjusted_balance)
 
     def whitelisted(self, pool_key: str, tx: SuiTransaction) -> bool:
         """

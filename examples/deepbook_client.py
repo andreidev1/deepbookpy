@@ -10,6 +10,7 @@ sys.path.insert(0, str(os.path.join(PARENT, "deepbookpy")))
 
 
 from deepbookpy.deepbook_client import DeepBookClient
+from deepbookpy.utils.config import DeepBookConfig
 
 # git clone https://github.com/andreidev1/deepbookpy
 # cd deepbookpy 
@@ -17,8 +18,8 @@ from deepbookpy.deepbook_client import DeepBookClient
 # python3 examples/deepbook_client.py
 if __name__ == "__main__":
 
+    # Init pysui config
     def cfg_user():
-
         cfg = SuiConfig.user_config(
             # Required
             rpc_url="https://fullnode.mainnet.sui.io:443/",
@@ -34,5 +35,26 @@ if __name__ == "__main__":
     current_sui_address = cfg.addresses[0]
     txn = SyncTransaction(client=client)
 
-    deepbook_client = DeepBookClient(client, current_sui_address, "mainnet")
-    print(deepbook_client.whitelisted("SUI_USDC", txn))
+    # Balance Manager
+    balance_manager = {
+        "MANAGER_1" : {
+            "address" : "0x344c2734b1d211bd15212bfb7847c66a3b18803f3f5ab00f5ff6f87b6fe6d27d",
+            "trade_cap" : ""
+        }
+    }
+
+    # Init deepbook client
+    deepbook_client = DeepBookClient(client, current_sui_address, "mainnet", balance_manager)
+    
+    # Init deepbook config
+    deepbook_config = DeepBookConfig("mainnet", "0x0", None, balance_manager)
+
+
+    # call get_balance_manager method from deepbook configuration
+    print(deepbook_config.get_balance_manager("MANAGER_1"))
+
+    # call check_manager_balance method from deepbook client
+    print(deepbook_client.check_manager_balance("MANAGER_1", "SUI", txn))
+
+    # call whitelisted method from deepbook_client
+    #print(deepbook_client.whitelisted("SUI_USDC", txn))
