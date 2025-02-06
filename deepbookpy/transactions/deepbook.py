@@ -529,23 +529,19 @@ class DeepBookContract:
 
         return tx
     
-    def get_pool_id_by_assets(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
+    def get_pool_id_by_assets(self, base_type: str, quote_type: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the pool ID by asset types
 
-        :param pool_key: key to identify the pool
-
+        :param base_type: type of the base asset
+        :param quote_type: type of the quote asset
         """        
-        pool = self.__config.get_pool(pool_key)
-        base_coin = self.__config.get_coin(pool['base_coin'])
-        quote_coin = self.__config.get_coin(pool['quote_coin'])
-
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_pool_id_by_asset",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID)
                 ],
-           type_arguments=[base_coin['type'], quote_coin['type']],
+           type_arguments=[base_type, quote_type],
         )
 
         return tx
@@ -598,9 +594,31 @@ class DeepBookContract:
 
         return tx
     """
-    def pool_book_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
+
+    def pool_trade_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Get the trade parameters for a given pool, including taker fee, maker fee, and stake required.
+
+        :param pool_key: key to identify the pool
+        """
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
+
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::pool_trade_params",
+            arguments=[
+                ObjectID(pool['address'])
+                ],
+           type_arguments=[base_coin['type'], quote_coin['type']],
+        )
+
+        return tx
+
+    def pool_book_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Get the book parameters for a given pool, including tick size, lot size, and min size.
 
         :param pool_key: key to identify the pool
         """

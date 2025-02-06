@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
 
     # call get_balance_manager method from deepbook configuration
-    print(deepbook_config.get_balance_manager("MANAGER_1"))
+    # print(deepbook_config.get_balance_manager("MANAGER_1"))
 
     # call check_manager_balance method from deepbook client
     #print(deepbook_client.check_manager_balance("MANAGER_1", "SUI"))
@@ -65,11 +65,32 @@ if __name__ == "__main__":
     # call get_base_quantity_out method from deepbook_client
     #print(deepbook_client.get_base_quantity_out("SUI_USDC", 1))
 
-    #call get_quantity_out method from deepbook_client
+    # call get_quantity_out method from deepbook_client
     #print(deepbook_client.get_quantity_out("SUI_USDC", 1, 5))
 
-    #call account_open_orders method from deepbook_client
+    # call account_open_orders method from deepbook_client
     #print(deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1"))
 
-    #call get_order method from deepbook_client
-    print(deepbook_client.get_order("SUI_USDC", "170141183460531932214793842481834620660"))
+    # call get_order method from deepbook_client
+    #print(deepbook_client.get_order("SUI_USDC", "170141183460531932214793842481834620660"))
+
+    # call get_order_norrmalized method from deepbook_client
+    #print(deepbook_client.get_order_normalized("SUI_USDC", "170141183460531932214793842481834620660"))
+
+    # call get_orders method from deepbook_client
+    #print(deepbook_client.get_orders("SUI_USDC", [62589821088840582335273900, 170141183460533205040134928440896149600, 63198563643272997538601259, 170141183460533463294551960374618773601, 170141183460534035143618245370718869602, 63438371316231221709609250, 170141183460532983679206043926276757613, 63715072477336864983849248]))
+
+    # call vault_balances method from deepbook_client
+    #print(deepbook_client.vault_balances("SUI_USDC"))
+
+    # call get_pool_id_by_assets method from deepbook_client
+    #print(deepbook_client.get_pool_id_by_assets("0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP", "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"))
+
+    # call mid_price method from deepbook_client
+    #print(deepbook_client.mid_price("SUI_USDC"))
+
+    # call pool_trade_params method from deepbook_client
+    print(deepbook_client.pool_trade_params("SUI_USDC"))
+
+    # call pool_book_params method from deepbook_client
+    print(deepbook_client.pool_book_params("SUI_USDC"))

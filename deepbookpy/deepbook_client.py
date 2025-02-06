@@ -3,7 +3,7 @@ import warnings
 from typing import List
 import json
 
-from canoser import BoolT, Uint64, Struct, BytesT, Uint128, Uint8
+from canoser import BoolT, Uint64, Struct, BytesT, Uint128, Uint8, ArrayT
 
 from pysui.sui.sui_clients.sync_client import SuiClient
 from pysui.sui.sui_clients.common import handle_result
@@ -16,13 +16,13 @@ from pysui.sui.sui_txn import SyncTransaction
 
 
 from deepbookpy.utils.normalizer import normalize_sui_address
-from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR
+from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
 from deepbookpy.transactions.balance_manager import BalanceManagerContract
 from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
 from deepbookpy.transactions.flash_loans import FlashLoanContract
 from deepbookpy.transactions.governance import GovernanceContract
-from deepbookpy.custom_types.serialization_types import VecSet, Order
+from deepbookpy.custom_types.serialization_types import VecSet, Order, ID
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -107,7 +107,7 @@ class DeepBookClient:
 
         pool = self._config.get_pool(pool_key)
         base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
-        quote_scalar =self._config.get_coin(pool["quote_coin"])["scalar"]
+        quote_scalar = self._config.get_coin(pool["quote_coin"])["scalar"]
 
 
         self.deepbook.get_quote_quantity_out(pool_key, base_quantity, tx)
@@ -220,3 +220,112 @@ class DeepBookClient:
         except:
             return None
 
+
+    def vault_balances(self, pool_key: str):
+        """
+        Get the vault balances for a pool
+
+        :param pool_key: key to identify the pool
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_coin_scalar = self._config.get_coin(pool['base_coin'])["scalar"]
+        quote_coin_scalar = self._config.get_coin(pool['quote_coin'])["scalar"]
+
+        self.deepbook.vault_balances(pool_key, tx)
+
+        result = tx.inspect_all().results
+
+        base_in_vault = Uint64.deserialize(bytes(result[0]["returnValues"][0][0]))
+        quote_in_vault = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
+        deep_in_vault = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
+
+        return dict(base=float(base_in_vault / base_coin_scalar), quote=float(quote_in_vault / quote_coin_scalar), deep=float(deep_in_vault))
+    
+    def get_pool_id_by_assets(self, base_type: str, quote_type: str):
+        """
+        Get the pool ID by asset types
+
+        :param base_type: type of the base asset
+        :param quote_type: type of the quote asset
+        """
+        tx = SyncTransaction(client=self.client)
+
+
+        self.deepbook.get_pool_id_by_assets(base_type, quote_type, tx)
+
+        result = tx.inspect_all().results
+
+        return "0x" + (bytes(result[0]["returnValues"][0][0])).hex()
+    
+    def mid_price(self, pool_key: str):
+        """
+        Get the mid price for a pool
+
+        :param pool_key: key of the pool
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        self.deepbook.mid_price(pool_key, tx)
+
+        base_coin = self._config.get_coin(pool['base_coin'])
+        quote_coin = self._config.get_coin(pool['quote_coin'])
+
+        result = tx.inspect_all().results
+
+        parsed_bytes = bytes(result[0]["returnValues"][0][0])
+
+        parsed_mid_price = Uint64.deserialize(parsed_bytes)
+        adjusted_mid_price = (parsed_mid_price * base_coin["scalar"]) / quote_coin["scalar"] / FLOAT_SCALAR
+
+        return adjusted_mid_price
+    
+    def pool_trade_params(self, pool_key: str):
+        """
+        Get the trade parameters for a given pool, including taker fee, maker fee, and stake required
+
+        :param pool_key: key of the pool
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        self.deepbook.pool_trade_params(pool_key, tx)
+
+        result = tx.inspect_all().results
+
+        taker_fee = Uint64.deserialize(bytes(result[0]["returnValues"][0][0]))
+        maker_fee = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
+        stake_required = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
+
+        return dict(
+            taker_fee=taker_fee / FLOAT_SCALAR,
+            maker_fee=maker_fee / FLOAT_SCALAR,
+            stake_required=stake_required / DEEP_SCALAR
+        )
+    
+
+    def pool_book_params(self, pool_key: str):
+        """
+        Get the trade parameters for a given pool, including tick size, lot size, and min size.
+
+        :param pool_key: key of the pool
+        """
+        tx = SyncTransaction(client=self.client)
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool['base_coin'])["scalar"]
+        quote_scalar = self._config.get_coin(pool['quote_coin'])["scalar"]
+        self.deepbook.pool_book_params(pool_key, tx)
+
+        result = tx.inspect_all().results
+
+        tick_size = Uint64.deserialize(bytes(result[0]["returnValues"][0][0]))
+        lot_size = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
+        min_size = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
+
+        return dict(
+            tick_size=(tick_size * base_scalar) / quote_scalar / FLOAT_SCALAR,
+            lot_size=lot_size / base_scalar,
+            min_size=min_size / base_scalar
+        )
