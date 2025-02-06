@@ -1,6 +1,7 @@
 """DeepBook Python SDK"""
 import warnings
 from typing import List
+import json
 
 from canoser import BoolT, Uint64
 
@@ -21,8 +22,11 @@ from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
 from deepbookpy.transactions.flash_loans import FlashLoanContract
 from deepbookpy.transactions.governance import GovernanceContract
+from deepbookpy.custom_types.serialization_types import VecSet
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
+
 class DeepBookClient:
 
     """DeepBookClient class for managing DeepBook operations"""
@@ -166,7 +170,6 @@ class DeepBookClient:
         self.deepbook.get_quantity_out(pool_key, base_quantity, quote_quantity, tx)
 
         result = tx.inspect_all().results
-        print(result)
         base_out = Uint64.deserialize(result[0]["returnValues"][0][0])
         quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
         deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
@@ -178,3 +181,21 @@ class DeepBookClient:
             quote_out=float(quote_out / quote_scalar), 
             deep_required=float(deep_required / DEEP_SCALAR)
             )
+    
+    def account_open_orders(self, pool_key: str, manager_key: str):
+        """
+        Get open orders for a balance manager in a pool
+
+        :param pool_key: key of the pool
+        :param manager_key: key of BalanceManager
+        """
+        tx = SyncTransaction(client=self.client)
+
+        self.deepbook.account_open_orders(pool_key, manager_key, tx)
+
+        result = tx.inspect_all().results
+        order_ids = result[0]["returnValues"][0][0]
+
+        deserialized_data = VecSet.deserialize(bytes(order_ids))
+
+        return deserialized_data.__dict__["constants"]
