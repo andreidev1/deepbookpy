@@ -69,4 +69,7 @@ if __name__ == "__main__":
     #print(deepbook_client.get_quantity_out("SUI_USDC", 1, 5))
 
     #call account_open_orders method from deepbook_client
-    print(deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1"))
+    #print(deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1"))
+
+    #call get_order method from deepbook_client
+    print(deepbook_client.get_order("SUI_USDC", "170141183460531932214793842481834620660"))

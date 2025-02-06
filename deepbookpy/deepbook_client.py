@@ -3,7 +3,7 @@ import warnings
 from typing import List
 import json
 
-from canoser import BoolT, Uint64
+from canoser import BoolT, Uint64, Struct, BytesT, Uint128, Uint8
 
 from pysui.sui.sui_clients.sync_client import SuiClient
 from pysui.sui.sui_clients.common import handle_result
@@ -22,7 +22,7 @@ from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
 from deepbookpy.transactions.flash_loans import FlashLoanContract
 from deepbookpy.transactions.governance import GovernanceContract
-from deepbookpy.custom_types.serialization_types import VecSet
+from deepbookpy.custom_types.serialization_types import VecSet, Order
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -199,3 +199,24 @@ class DeepBookClient:
         deserialized_data = VecSet.deserialize(bytes(order_ids))
 
         return deserialized_data.__dict__["constants"]
+
+    def get_order(self, pool_key: str, order_id: str):
+        """
+        Get the order information for a specific order in a pool
+
+        :param pool_key: key to identify pool
+        :param order_id: Order ID
+        """
+        tx = SyncTransaction(client=self.client)
+
+        self.deepbook.get_order(pool_key, order_id, tx)
+
+        result = tx.inspect_all().results
+
+        try:
+            parsed_bytes = result[0]["returnValues"][0][0]
+            order_info = Order.deserialize(bytes(parsed_bytes))
+            return order_info
+        except:
+            return None
+
