@@ -23,6 +23,7 @@ class DeepBookContract:
         Place a limit order
 
         :param params: PlaceLimitOrder parameters
+        :return: SuiTransaction object
         """
         pool_key = params.pool_key
         balance_manager_key = params.balance_manager_key
@@ -71,6 +72,7 @@ class DeepBookContract:
         Place a market order
 
         :param params: PlaceMarketOrderParams parameters
+        :return: SuiTransaction object
         """
         pool_key = params.pool_key
         balance_manager_key = params.balance_manager_key
@@ -115,6 +117,7 @@ class DeepBookContract:
         :param balance_manager_key: key to identify the BalanceManager
         :param order_id: order ID to modify
         :param new_quantity: new quantity for the order
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -146,6 +149,7 @@ class DeepBookContract:
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
         :param order_id: order ID to cancel
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -175,6 +179,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -202,6 +207,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -228,6 +234,7 @@ class DeepBookContract:
 
         :param target_pool_key: key to indentify the target pool
         :param reference_pool_key: key to identify the reference pool
+        :return: SuiTransaction object
         """        
         target_pool = self.__config.get_pool(target_pool_key)
         reference_pool = self.__config.get_pool(reference_pool_key)
@@ -260,6 +267,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param order_id: order ID to get
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -283,6 +291,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param order_id: array of order IDs to retrieve.
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -305,6 +314,7 @@ class DeepBookContract:
         Burn DEEP tokens from the pool
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -327,6 +337,7 @@ class DeepBookContract:
         Get the mid price for a pool
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -349,6 +360,7 @@ class DeepBookContract:
         Check if a pool is whitelisted
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -370,6 +382,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param base_quantity: base quantity to convert
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -394,6 +407,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param quote_quantity: quote quantity to convert
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -417,6 +431,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param quote_quantity: quote quantity to convert
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -441,6 +456,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         manager = self.__config.get_balance_manager(manager_key)
@@ -466,6 +482,7 @@ class DeepBookContract:
         :param price_low: lower bound of the price range
         :param price_high: upper bound of the price range
         :param is_bid: whether to get bid or ask orders
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -491,6 +508,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param tick_from_mid: number of ticks from mid price
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -513,7 +531,7 @@ class DeepBookContract:
         Get the vault balances for a pool
 
         :param pool_key: key to identify the pool
-
+        :return: SuiTransaction object
         """        
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -535,6 +553,7 @@ class DeepBookContract:
 
         :param base_type: type of the base asset
         :param quote_type: type of the quote asset
+        :return: SuiTransaction object
         """        
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_pool_id_by_asset",
@@ -600,6 +619,7 @@ class DeepBookContract:
         Get the trade parameters for a given pool, including taker fee, maker fee, and stake required.
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -621,6 +641,7 @@ class DeepBookContract:
         Get the book parameters for a given pool, including tick size, lot size, and min size.
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -643,6 +664,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -666,6 +688,7 @@ class DeepBookContract:
 
         :param pool_key: key to identify the pool
         :param manager_key: key of the BalanceManager
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -688,6 +711,7 @@ class DeepBookContract:
         Get the DEEP price conversion for a pool
 
         :param pool_key: key to identify the pool
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])

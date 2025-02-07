@@ -19,7 +19,7 @@ class FlashLoanContract:
 
         :param pool_key: key to identify the pool
         :param borrow_amount: the amount to borrow
-         
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -42,7 +42,7 @@ class FlashLoanContract:
         :param borrow_amount: the amount of the base asset to return
         :param base_coin_input: the base coin to be queried
         :param flash_loan: flash loan
-        
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -66,8 +66,7 @@ class FlashLoanContract:
 
         :param pool_key: key to identify the pool
         :param borrow_amount: the amount to borrow
-
-        
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -91,6 +90,7 @@ class FlashLoanContract:
         :param borrow_amount: the amount of the quote asset to return
         :parram quote_coin_input: Coin object
         :param flash_loan:  FlashLoan object
+        :return: SuiTransaction object
         """
 
         pool = self.__config.get_pool(pool_key)

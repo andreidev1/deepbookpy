@@ -31,7 +31,7 @@ class DeepBookAdminContract:
         Create a new pool as admin
 
         :param params: parameters for creating pool as admin
-        
+        :return: SuiTransaction object
         """
         base_coin_key = params.base_coin_key
         quote_coin_key = params.quote_coin_key
@@ -72,6 +72,7 @@ class DeepBookAdminContract:
         Unregister a pool as admin
         
         :param pool_key: key of the pool to be unregistered by admin
+        :return: SuiTransaction object
         """
 
         pool = self.__config.get_pool(pool_key)
@@ -95,6 +96,7 @@ class DeepBookAdminContract:
         Update the allowed versions for a pool
 
         :param pool_key: key of the pool to update allowed versions
+        :return: SuiTransaction object
         """
         
         pool = self.__config.get_pool(pool_key)
@@ -118,6 +120,7 @@ class DeepBookAdminContract:
         Enable a specific transaction
 
         :param version: the version to be enabled
+        :return: SuiTransaction object
         """
         
         tx.move_call(
@@ -136,6 +139,7 @@ class DeepBookAdminContract:
         Disable a specific transaction
 
         :param version: the version to be disabled
+        :return: SuiTransaction object
         """
         
         tx.move_call(
@@ -154,6 +158,7 @@ class DeepBookAdminContract:
         Sets the treasury address where pool creation fees will be sent
 
         :param treasury_address: the treasury address
+        :return: SuiTransaction object
         """
         
         tx.move_call(

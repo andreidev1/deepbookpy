@@ -23,6 +23,7 @@ class GovernanceContract:
         :pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
         :param stake_amount: amount to stake
+        :return: SuiTransaction object
         """
 
         pool = self.__config.get_pool(pool_key)
@@ -55,7 +56,7 @@ class GovernanceContract:
 
         :pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
-
+        :return: SuiTransaction object
         """
 
         pool = self.__config.get_pool(pool_key)
@@ -85,7 +86,7 @@ class GovernanceContract:
         Submit a governance proposal
 
         :param params: Parameters for the proposal
-
+        :return: SuiTransaction object
         """
         pool_key = params.pool_key
         balance_manager_key = params.balance_manager_key
@@ -127,7 +128,7 @@ class GovernanceContract:
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManger
         :param proposal_id: ID of the proposal to vote on
-
+        :return: SuiTransaction object
         """
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)

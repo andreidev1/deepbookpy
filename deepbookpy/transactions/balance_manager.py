@@ -15,6 +15,8 @@ class BalanceManagerContract:
     def create_and_share_balance_manager(self, tx: SuiTransaction) -> SuiTransaction:
         """
         Create and share a new BalanceManager
+        
+        :return: SuiTransaction object
         """
         
         manager = tx.move_call(
@@ -37,6 +39,7 @@ class BalanceManagerContract:
         :param manager_key: key of the BalanceManager
         :param coin_key: key of the coin to deposit
         :param amount_to_deposit: amount to deposit
+        :return: SuiTransaction object
         """
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
@@ -63,6 +66,7 @@ class BalanceManagerContract:
         :param coin_key: key of the coin to withdraw
         :param amount_to_withdraw: amount to withdraw
         :param recipient: recipient of the withdrawn funds
+        :return: SuiTransaction object
         """
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
@@ -87,6 +91,7 @@ class BalanceManagerContract:
         :param manager_key: key of the BalanceManger
         :param coin_key: key of the coin to withdraw
         :param recipient: recipient of the withdrawn funds
+        :return: SuiTransaction object
         """
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
@@ -108,6 +113,7 @@ class BalanceManagerContract:
 
         :param manager_key: key of the BalanceManger
         :param coin_key: key of the coin to check the balance of
+        :return: SuiTransaction object
         """
         
         manager_id = self.__config.get_balance_manager(manager_key)["address"]
@@ -124,6 +130,7 @@ class BalanceManagerContract:
         Generate a trade proof for the BalanceManager. Calls the appropriate function based on whether tradeCap is set.
 
         :param manager_key: key of the BalanceManager
+        :return: SuiTransaction object
         """
 
         balance_manager = self.__config.get_balance_manager(manager_key)
@@ -140,6 +147,7 @@ class BalanceManagerContract:
         Generate a trade proof as the owner
 
         :param manager_id: ID of the BalanceManager
+        :return: SuiTransaction object
         """
 
         tx.move_call(
@@ -155,6 +163,7 @@ class BalanceManagerContract:
 
         :param manager_id: ID of the BalanceManger
         :param trade_cap_id: ID of the tradeCap
+        :return: SuiTransaction object
         """
 
         tx.move_call(
@@ -169,6 +178,7 @@ class BalanceManagerContract:
         Get the owner of the BalanceManager
 
         :param manager_id: key of the BalanceManager
+        :return: SuiTransaction object
         """
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
@@ -185,6 +195,7 @@ class BalanceManagerContract:
         Get the ID of the BalanceManager
 
         :param manager_id: key of the BalanceManager
+        :return: SuiTransaction object
         """
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
