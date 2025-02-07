@@ -22,7 +22,7 @@ from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
 from deepbookpy.transactions.flash_loans import FlashLoanContract
 from deepbookpy.transactions.governance import GovernanceContract
-from deepbookpy.custom_types.serialization_types import VecSet, Order, ID
+from deepbookpy.custom_types.serialization_types import VecSet, Order, ID, Account, OrderDeepPrice
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -290,7 +290,6 @@ class DeepBookClient:
         """
         tx = SyncTransaction(client=self.client)
 
-        pool = self._config.get_pool(pool_key)
         self.deepbook.pool_trade_params(pool_key, tx)
 
         result = tx.inspect_all().results
@@ -329,3 +328,60 @@ class DeepBookClient:
             lot_size=lot_size / base_scalar,
             min_size=min_size / base_scalar
         )
+    
+    def locked_balance(self, pool_key: str, balance_manager_key: str):
+        """
+        Get the locked balances for a pool and balance manager
+
+        :param pool_key: key of the pool
+        :param balance_manager_key: key of the BalanceManager
+        """
+        tx = SyncTransaction(client=self.client)
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool['base_coin'])["scalar"]
+        quote_scalar = self._config.get_coin(pool['quote_coin'])["scalar"]
+
+        self.deepbook.locked_balance(pool_key, balance_manager_key, tx)
+
+        result = tx.inspect_all().results
+
+        base_locked = Uint64.deserialize(bytes(result[0]["returnValues"][0][0]))
+        quote_locked = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
+        deep_locked = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
+
+        return dict(
+            base=base_locked / base_scalar,
+            quote=quote_locked / quote_scalar,
+            deep=deep_locked / DEEP_SCALAR
+        )
+    
+    def get_pool_deep_price(self, pool_key: str):
+        """
+        Get the DEEP price conversion for a pool
+
+        :param pool_key: key of the pool
+  
+        """
+        tx = SyncTransaction(client=self.client)
+        pool = self._config.get_pool(pool_key)
+        base_coin = self._config.get_coin(pool['base_coin'])
+        quote_coin = self._config.get_coin(pool['quote_coin'])
+
+        deep_coin = self._config.get_coin("DEEP")
+
+        self.deepbook.get_pool_deep_price(pool_key, tx)
+
+        result = tx.inspect_all().results
+
+        pool_deep_price = OrderDeepPrice.deserialize(bytes(result[0]["returnValues"][0][0]))
+        
+        if(pool_deep_price.asset_is_base):
+            return dict(
+                asset_is_base=pool_deep_price.asset_is_base, 
+                deep_per_base=((pool_deep_price.deep_per_asset / FLOAT_SCALAR) * base_coin["scalar"]) / deep_coin["scalar"]
+                )
+        else:
+            return dict(
+                asset_is_base=pool_deep_price.asset_is_base,
+                deep_per_quote=((pool_deep_price.deep_per_asset / FLOAT_SCALAR) * quote_coin["scalar"]) / deep_coin["scalar"]
+                )

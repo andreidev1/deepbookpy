@@ -647,7 +647,7 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-        manager_id = self.__config.get_balance_manager(manager_key).address
+        manager_id = self.__config.get_balance_manager(manager_key)["address"]
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::account",
@@ -670,7 +670,7 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-        manager_id = self.__config.get_balance_manager(manager_key).address
+        manager_id = self.__config.get_balance_manager(manager_key)["address"]
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::locked_balance",

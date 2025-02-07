@@ -90,7 +90,16 @@ if __name__ == "__main__":
     #print(deepbook_client.mid_price("SUI_USDC"))
 
     # call pool_trade_params method from deepbook_client
-    print(deepbook_client.pool_trade_params("SUI_USDC"))
+    #print(deepbook_client.pool_trade_params("SUI_USDC"))
 
     # call pool_book_params method from deepbook_client
-    print(deepbook_client.pool_book_params("SUI_USDC"))
+    #print(deepbook_client.pool_book_params("SUI_USDC"))
+
+    # call account method from deepbook_client
+    # print(deepbook_client.account("SUI_USDC", "MANAGER_1"))
+
+    # call locked_balance method from deepbook_client
+    print(deepbook_client.locked_balance("DEEP_SUI", "MANAGER_1"))
+
+    # call get_pool_deep_price method from deepbook_client
+    #print(deepbook_client.get_pool_deep_price("SUI_USDC"))

@@ -1,4 +1,5 @@
-from canoser import Struct, ArrayT, Uint8, Uint64, Uint128, BoolT, BytesT
+from canoser import Struct, ArrayT, Uint8, Uint64, Uint128, BoolT, BytesT, RustOptional
+from pysui.sui.sui_types.bcs import Address
 
 class VecSet(Struct):
     _fields = [
@@ -28,4 +29,31 @@ class Order(Struct):
         ("epoch", Uint64),
         ("status", Uint8),
         ("expire_timestamp", Uint64),
+    ]
+
+
+class OptionID(RustOptional):
+    _type = BytesT(32)
+
+
+class Balances(Struct):
+    _fields = [
+        ("base", Uint64),
+        ("quote", Uint64),
+        ("deep", Uint64)
+    ]
+
+class Account(Struct):
+    _fields = [
+        ("epoch", Uint64),
+        ("open_orders", VecSet),
+        ("taker_volume", Uint128),
+        ("maker_volume", Uint128),
+        ("active_stake", Uint64),
+        ("inactive_stake", Uint64),
+        ("created_proposal", BoolT),
+        ("voted_proposal", 0),  # Optional ID
+        ("unclaimed_rebates", Balances),
+        ("settled_balances", Balances),
+        ("owed_balances", Balances)
     ]
