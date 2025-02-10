@@ -8,7 +8,7 @@ class VecSet(Struct):
 
 class ID(Struct):
     _fields = [
-        ("bytes", BytesT(32)) 
+        ("bytes", Address) 
     ]
 
 class OrderDeepPrice(Struct):
@@ -52,7 +52,7 @@ class Account(Struct):
         ("active_stake", Uint64),
         ("inactive_stake", Uint64),
         ("created_proposal", BoolT),
-        ("voted_proposal", 0),  # Optional ID
+        ("voted_proposal", ID),  # Optional ID
         ("unclaimed_rebates", Balances),
         ("settled_balances", Balances),
         ("owed_balances", Balances)

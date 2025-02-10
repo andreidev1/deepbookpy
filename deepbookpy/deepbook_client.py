@@ -2,16 +2,9 @@
 import warnings
 from typing import Any, Dict, List
 
-from canoser import BoolT, Uint64, Struct, BytesT, Uint128, Uint8, ArrayT
-from pysui.sui.sui_clients.sync_client import SuiClient
-from pysui.sui.sui_clients.common import handle_result
-from pysui.sui.sui_txn.sync_transaction import SuiTransaction
-from pysui.sui.sui_types.address import SuiAddress
-from pysui.sui.sui_types.collections import SuiArray
-from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
+from canoser import BoolT, Uint64
 from pysui import SyncClient
 from pysui.sui.sui_txn import SyncTransaction
-
 
 from deepbookpy.utils.normalizer import normalize_sui_address
 from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
@@ -25,7 +18,6 @@ from deepbookpy.custom_types.serialization_types import VecSet, Order, ID, Accou
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 class DeepBookClient:
-
     """DeepBookClient class for managing DeepBook operations"""
 
     def __init__(self, client: SyncClient, address, env, balance_managers=None, coins=None, pools=None, admin_cap=None):
@@ -224,6 +216,62 @@ class DeepBookClient:
         except:
             return None
 
+    def get_order_normalized(self, pool_key: str, order_id: str) -> Dict[str, Any]:
+        """
+        Get the order information for a specific order in a pool, with normalized price
+
+        :param pool_key: key to identify pool
+        :param order_id: Order ID
+        :returns: a dictionary object containing the order information with normalized price
+        """
+
+        tx = SyncTransaction(client=self.client)
+
+        self.deepbook.get_order(pool_key, order_id, tx)
+
+        result = tx.inspect_all().results
+        
+        parsed_bytes = result[0]["returnValues"][0][0]
+    
+        order = Order.deserialize(bytearray(parsed_bytes))
+        order_info = order.__dict__
+
+        if not order_info:
+            return None
+        
+        base_coin = self._config.get_coin(self._config.get_pool(pool_key)["base_coin"])
+        quote_coin = self._config.get_coin(self._config.get_pool(pool_key)["base_coin"])
+
+        decoded = self.decode_order_id(int(order_info["order_id"]))
+        is_bid = decoded['is_bid']
+        raw_price = decoded['price']
+        normalized_price = (raw_price * base_coin["scalar"]) / quote_coin["scalar"] / FLOAT_SCALAR
+
+        order_info["quantity"] = float(order_info["quantity"]) / base_coin["scalar"]
+        order_info["filled_quantity"] = float(order_info["filled_quantity"]) / base_coin["scalar"]
+        order_info["order_deep_price"].__dict__["deep_per_asset"] = float(order_info["order_deep_price"].__dict__["deep_per_asset"]) / DEEP_SCALAR
+        order_info['is_bid'] = is_bid
+        order_info['normalized'] = normalized_price
+
+        return order_info
+        
+    
+    def decode_order_id(self, encoded_order_id: int) -> dict:
+        """
+        Decode the order ID to get bid/ask status, price, and orderId
+
+        :param encoded_order_id: Encoded order ID
+        :returns: dictionary object
+        """
+        is_bid = (encoded_order_id >> 127) == 0
+        price = (encoded_order_id >> 64) & ((1 << 63) - 1)
+        order_id = encoded_order_id & ((1 << 64) - 1)
+
+        return dict(
+            is_bid=is_bid,
+            price=price,
+            order_id=order_id
+        )
 
     def vault_balances(self, pool_key: str) -> Dict[str, float]:
         """
@@ -311,7 +359,6 @@ class DeepBookClient:
             stake_required=stake_required / DEEP_SCALAR
         )
     
-
     def pool_book_params(self, pool_key: str) -> Dict[str, float]:
         """
         Get the trade parameters for a given pool, including tick size, lot size, and min size.
