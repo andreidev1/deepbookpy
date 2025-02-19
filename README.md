@@ -14,6 +14,11 @@ DEEPBOOK_PACKAGE_ID = normalize_sui_object_id("dee9")
 
 `poetry add deepbookpy`
 
+## Versions
+deepbookpy [v1](https://github.com/andreidev1/deepbookpy/tree/clob_v1_module) - compatible with the first CLOB module version
+deepbookpy [v2](https://github.com/andreidev1/deepbookpy/tree/clob_v2_module) - compatible with second CLOB module version
+deepbookpy v3 (current) - compatible with third CLOB module version
+
 ## Documentation
 Check out latest deepbookpy [documentation](https://deepbookpy.readthedocs.io/en/latest/) release 
 
