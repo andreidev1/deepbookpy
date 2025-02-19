@@ -215,6 +215,94 @@ class DeepBookClient:
             return order_info
         except:
             return None
+        
+    # WIP
+    def get_orders(self, pool_key: str, order_ids: list[str]) -> bytes:
+        """
+        Retrieves information for multiple specific orders in a pool.
+
+        :param pool_key: key to identify pool
+        :param order_ids: list of order IDs to retrieve information for
+        :returns: 
+        """
+        tx = SyncTransaction(client=self.client)
+
+        self.deepbook.get_orders(pool_key, order_ids, tx)
+
+        result = tx.inspect_all().results
+
+
+        parsed_bytes = result[0]["returnValues"][0][0]
+
+        #order_info = ArrayT(Order.deserialize(bytes(parsed_bytes)))
+
+        return parsed_bytes
+    
+    # WIP
+    def get_level2_range(self, pool_key: str, price_low: str, price_high: int, is_bid: bool):
+        """
+        Get level 2 order book specifying range of price
+
+        :param pool_key: key to identify the pool
+        :param price_low: lower bound of the price range
+        :param price_high: upper bound of the price range
+        :param is_bid: whether to get bid or ask orders
+        :returns: 
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_coin = self._config.get_coin(pool['base_coin'])
+        quote_coin = self._config.get_coin(pool['quote_coin'])
+
+        self.deepbook.get_level2_range(pool_key, price_low, price_high, is_bid, tx)
+
+        result = tx.inspect_all().results
+
+        #prices = 
+
+
+    # WIP
+    def get_level2_ticks_from_mid(self, pool_key: str, ticks: int):
+        """
+        Get level 2 order book ticks from mid-price for a pool
+
+        :param pool_key: key to identify the pool
+        :param ticks: lower bound of the price ranger
+        :returns: 
+        """
+        tx = SyncTransaction(client=self.client)
+
+        pool = self._config.get_pool(pool_key)
+        base_coin = self._config.get_coin(pool['base_coin'])
+        quote_coin = self._config.get_coin(pool['quote_coin'])
+
+        self.deepbook.get_level2_ticks_from_mid(pool_key, ticks, tx)
+
+        result = tx.inspect_all().results
+
+
+    # WIP
+    def account(self, pool_key: str, manager_key: str):
+        """
+        Get the account information for a given pool and balance manager
+
+        :param pool_key: key of the pool
+        :param manager_key: key of the BalanceManager
+        :returns: 
+        """
+        tx = SyncTransaction(client=self.client)
+        pool = self._config.get_pool(pool_key)
+        base_scalar = self._config.get_coin(pool['base_coin'])["scalar"]
+        quote_scalar = self._config.get_coin(pool['quote_coin'])["scalar"]
+
+        self.deepbook.account(pool_key, manager_key, tx)
+
+        result = tx.inspect_all().results
+
+        account_information = Account.deserialize(bytes(result[0]["returnValues"][0][0]))
+        #acc = result[0]["returnValues"][0][0]
+        return account_information
 
     def get_order_normalized(self, pool_key: str, order_id: str) -> Dict[str, Any]:
         """

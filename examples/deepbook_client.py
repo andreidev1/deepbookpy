@@ -78,12 +78,6 @@ if __name__ == "__main__":
     #order_id = deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1")[0]
     #print(deepbook_client.get_order_normalized("SUI_USDC", order_id))
 
-    # call get_orders method from deepbook_client
-    #print(deepbook_client.get_orders("SUI_USDC", [62589821088840582335273900, 170141183460533205040134928440896149600, 63198563643272997538601259, 170141183460533463294551960374618773601, 170141183460534035143618245370718869602, 63438371316231221709609250, 170141183460532983679206043926276757613, 63715072477336864983849248]))
-
-    # call get_level2_range method from deepbook_client
-    #print(deepbook_client.get_level2_range("SUI_USDC", 0.1, 100, True))
-
     # call vault_balances method from deepbook_client
     #print(deepbook_client.vault_balances("SUI_USDC"))
 
@@ -98,9 +92,6 @@ if __name__ == "__main__":
 
     # call pool_book_params method from deepbook_client
     #print(deepbook_client.pool_book_params("SUI_USDC"))
-
-    # call account method from deepbook_client
-    #print(deepbook_client.account("SUI_USDC", "MANAGER_1"))
 
     # call locked_balance method from deepbook_client
     #print(deepbook_client.locked_balance("DEEP_SUI", "MANAGER_1"))
