@@ -21,34 +21,45 @@ Replace ``rpc_url``, ``prv_keys``, ``ws_url`` with your desired data.
 
 .. code:: py
 
-   from pysui.sui.sui_config import SuiConfig
-   from pysui.sui.sui_clients.sync_client import SuiClient
+    from pysui import SyncClient, SuiConfig
+    from pysui.sui.sui_txn import SyncTransaction
 
 
-   def cfg_user():
-       """Config user"""
-       cfg = SuiConfig.user_config(
-           # Required
-           rpc_url="https://fullnode.testnet.sui.io:443/",
-           # Must be a valid Sui keystring (i.e. 'key_type_flag | private_key_seed' )
-           prv_keys=["AIUPxQveY18QggDDdTO0D0OD6PNVvtet50072d1grIyl"],
-           # Needed for subscribing
-           ws_url="wss://fullnode.testnet.sui.io:443/",
-       )
-       return cfg
+    # Init pysui config
+    def cfg_user():
+        cfg = SuiConfig.user_config(
+            # Required
+            rpc_url="https://fullnode.mainnet.sui.io:443/",
+            # Must be a valid Sui keystring (i.e. 'key_type_flag | private_key_seed' )
+            prv_keys=["AIUPxQveY18QggDDdTO0D0OD6PNVveet50072d1frIal"],
+            # Needed for subscribing
+            ws_url="wss://fullnode.mainnet.sui.io:443/",
+        )
+        return cfg
 
-   cfg = cfg_user()
-   client = SuiClient(cfg)
-   my_sui_address = cfg.addresses[0]
+    cfg = cfg_user()
+    client = SyncClient(cfg)
+    current_sui_address = cfg.addresses[0]
+    txn = SyncTransaction(client=client)
 
-DeepBook Package ID
-*******************
 
-.. code:: py
+Instantiate DeepBook Python SDK
+**********************
 
-   from deepbookpy.utils.normalizer import normalize_sui_object_id
+    # Sample of Balance Manager
+    balance_manager = {
+        "MANAGER_1" : {
+            "address" : "0x344c2734b1d211bd15212bfb7847c66a3b18803f3f5ab00f5ff6f87b6fe6d27d",
+            "trade_cap" : ""
+        }
+    }
 
-   deepbook_package_id = normalize_sui_object_id("dee9")
+    # Init DeepBook Client
+    deepbook_client = DeepBookClient(client, current_sui_address, "mainnet", balance_manager)
+
+    # Init deepbook config
+    deepbook_config = DeepBookConfig("mainnet", "0x0", None, balance_manager)
+
 
 Query DeepBook Package
 **********************
