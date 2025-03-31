@@ -564,45 +564,54 @@ class DeepBookContract:
         )
 
         return tx
-    
-    # TO DO
-    """
-    def swap_exact_base_for_quote(self, tx: SuiTransaction, params: SwapParams) -> SuiTransaction:
 
-        #Swap exact base amount for quote amount
+    def swap_exact_base_for_quote(self, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
 
-        #:param pool_key: key to identify the pool
+        """
+        Swap exact base amount for quote amount
+
+        :param SwapParams: Parameters for the swap
+        :return: SuiTransaction object
+        """
 
 
         if(params.quote_coin) :
             raise ValueError("quote coin is not accepted for swapping base asset")
 
         pool_key = params.pool_key
-        amount = params.amount
+        base_amount = params.amount
         deep_amount = params.deep_amount
         min_quote = params.min_out
 
         pool = self.__config.get_pool(pool_key)
-        deep_coin_type = self.__config.get_coin("DEEP").type
+        deep_coin_type = self.__config.get_coin("DEEP")["type"]
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
         base_coin_input = (
             params.base_coin 
             if params.base_coin is not None 
-            else coin_with_balance({
-                "type": base_coin.type, 
-                "balance": round(base_amount * base_coin["scalar"])
-            })
+            else dict(
+                type=base_coin["type"], 
+                balance=round(base_amount * base_coin["scalar"])
+            )
         )
-        deep_coin = ""
+        
+        deep_coin = (
+            params.deep_coin 
+            if params.base_coin is not None 
+            else dict(
+                type=deep_coin_type, 
+                balance=round(deep_amount * base_coin["scalar"])
+            )
+        )
 
         min_quote_input = round(min_quote * quote_coin["scalar"])
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_base_for_quote",
             arguments=[
-                ObjectID(self.__config.REGISTRY_ID),
+                ObjectID(pool["address"]),
                 base_coin_input,
                 deep_coin,
                 SuiU64(min_quote_input),
@@ -612,7 +621,61 @@ class DeepBookContract:
         )
 
         return tx
-    """
+
+    def swap_exact_quote_for_base(self, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
+        """
+        Swap exact quote amount for base amount
+
+        :param SwapParams: Parameters for the swap
+        :return: SuiTransaction object
+        """
+
+        if(params.quote_coin) :
+            raise ValueError("quote coin is not accepted for swapping base asset")
+
+        pool_key = params.pool_key
+        base_amount = params.amount
+        deep_amount = params.deep_amount
+        min_base = params.min_out
+
+        pool = self.__config.get_pool(pool_key)
+        deep_coin_type = self.__config.get_coin("DEEP")["type"]
+        base_coin = self.__config.get_coin(pool['base_coin'])
+        quote_coin = self.__config.get_coin(pool['quote_coin'])
+
+        base_coin_input = (
+            params.base_coin 
+            if params.base_coin is not None 
+            else dict(
+                type=base_coin["type"], 
+                balance=round(base_amount * base_coin["scalar"])
+            )
+        )
+
+        deep_coin = (
+            params.deep_coin 
+            if params.base_coin is not None 
+            else dict(
+                type=deep_coin_type, 
+                balance=round(deep_amount * base_coin["scalar"])
+            )
+        )
+
+        min_base_input = round(min_base * quote_coin["scalar"])
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_quote_for_base",
+            arguments=[
+                ObjectID(self.__config.REGISTRY_ID),
+                base_coin_input,
+                deep_coin,
+                SuiU64(min_base_input),
+                ObjectID(CLOCK)
+                ],
+           type_arguments=[base_coin['type'], quote_coin['type']],
+        )
+
+        return tx
 
     def pool_trade_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """

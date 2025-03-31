@@ -44,10 +44,10 @@ class BalanceManagerContract:
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
         coin = self.__config.get_coin(coin_key)
-        deposit_input = round(amount_to_deposit * coin.scalar)
+        deposit_input = round(amount_to_deposit * coin["scalar"])
 
         #TO DO
-        deposit = ""
+        deposit = dict(type=coin["type"], balance=deposit_input)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::deposit",
@@ -71,7 +71,7 @@ class BalanceManagerContract:
 
         manager_id = self.__config.get_balance_manager(manager_key)['address']
         coin = self.__config.get_coin(coin_key)
-        withdraw_input = round(amount_to_withdraw * coin.scalar)
+        withdraw_input = round(amount_to_withdraw * coin["scalar"])
         
         coin_object = tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::balance_manager::withdraw",

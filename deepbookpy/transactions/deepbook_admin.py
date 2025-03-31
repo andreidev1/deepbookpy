@@ -82,7 +82,7 @@ class DeepBookAdminContract:
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::unregister_pool_admin",
             arguments=[
-                ObjectID(pool.address),
+                ObjectID(pool["address"]),
                 ObjectID(self.__config.REGISTRY_ID),
                 ObjectID(self.__admin_cap)
             ],
