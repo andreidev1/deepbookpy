@@ -13,9 +13,10 @@ class DeepbookPackageIds(TypedDict):
     REGISTRY_ID: str
     DEEP_TREASURY_ID: str
 
+
 testnet_package_ids: DeepbookPackageIds = {
-    "DEEPBOOK_PACKAGE_ID": "0xcbf4748a965d469ea3a36cf0ccc5743b96c2d0ae6dee0762ed3eca65fac07f7e",
-    "REGISTRY_ID": "0x98dace830ebebd44b7a3331c00750bf758f8a4b17a27380f5bb3fbe68cb984a7",
+    "DEEPBOOK_PACKAGE_ID": "0x984757fc7c0e6dd5f15c2c66e881dd6e5aca98b725f3dbd83c445e057ebb790a",
+    "REGISTRY_ID": "0x7c256edbda983a2cd6f946655f4bf3f00a41043993781f8674a7046e8c0e11d1",
     "DEEP_TREASURY_ID": "0x69fffdae0075f8f71f4fa793549c11079266910e8905169845af1f5d00e09dcb",
 }
 
@@ -47,7 +48,6 @@ testnet_coins: Dict[str, Coin] = {
         "scalar": 1000000,
     },
 }
-
 
 mainnet_coins: Dict[str, Coin] = {
     "DEEP": {
@@ -114,7 +114,7 @@ mainnet_coins: Dict[str, Coin] = {
 
 testnet_pools = {
     "DEEP_SUI": {
-        "address": "0x0d1b1746d220bd5ebac5231c7685480a16f1c707a46306095a4c67dc7ce4dcae",
+        "address": "0x48c95963e9eac37a316b7ae04a0deb761bcdcc2b67912374d6036e7f0e9bae9f",
         "base_coin": "DEEP",
         "quote_coin": "SUI",
     },
