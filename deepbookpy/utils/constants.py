@@ -6,6 +6,7 @@ from utils.normalizer import normalize_sui_object_id
 """Sui Constants"""
 
 CLOCK = normalize_sui_object_id("0x6")
+DEFAULT_EXPIRATION_TIMESTAMP = 1844674407370955161
 
 @dataclass
 class DeepbookPackageIds(TypedDict):
@@ -119,17 +120,17 @@ testnet_pools = {
         "quote_coin": "SUI",
     },
     "SUI_DBUSDC": {
-        "address": "0x520c89c6c78c566eed0ebf24f854a8c22d8fdd06a6f16ad01f108dad7f1baaea",
+        "address": "0x1c19362ca52b8ffd7a33cee805a67d40f31e6ba303753fd3a4cfdfacea7163a5",
         "base_coin": "SUI",
         "quote_coin": "DBUSDC",
     },
     "DEEP_DBUSDC": {
-        "address": "0xee4bb0db95dc571b960354713388449f0158317e278ee8cda59ccf3dcd4b5288",
+        "address": "0xe86b991f8632217505fd859445f9803967ac84a9d4a1219065bf191fcb74b622",
         "base_coin": "DEEP",
         "quote_coin": "DBUSDC",
     },
     "DBUSDT_DBUSDC": {
-        "address": "0x69cbb39a3821d681648469ff2a32b4872739d2294d30253ab958f85ace9e0491",
+        "address": "0x83970bb02e3636efdff8c141ab06af5e3c9a22e2f74d7f02a9c3430d0d10c1ca",
         "base_coin": "DBUSDT",
         "quote_coin": "DBUSDC",
     },
