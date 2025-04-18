@@ -57,7 +57,7 @@ class PlaceLimitOrderParams:
     quantity: float
     is_bid: bool
     expiration: Optional[Union[int, float]] = None
-    order_type: Optional[OrderType] = None
+    order_type: Optional[int] = None
     self_matching_option: Optional[SelfMatchingOptions] = None
     pay_with_deep: Optional[bool] = None
 

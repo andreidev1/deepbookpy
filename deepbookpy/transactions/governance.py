@@ -1,7 +1,5 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
-from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
-from pysui.sui.sui_types.address import SuiAddress
-
+from pysui.sui.sui_types.scalars import ObjectID, SuiU64
 
 from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
 from deepbookpy.custom_types import ProposalParams
@@ -16,7 +14,7 @@ class GovernanceContract:
         """
         self.__config = config
 
-    def stake(self, pool_key:str, balance_manager_key: str, stake_amount: int, tx: SuiTransaction) -> SuiTransaction:
+    def stake(self, pool_key:str, balance_manager_key: str, stake_amount: int, tx) -> SuiTransaction:
         """
         Stake a specified amount in the pool
 
@@ -28,8 +26,8 @@ class GovernanceContract:
 
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
-        
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
@@ -50,9 +48,9 @@ class GovernanceContract:
 
         return tx
     
-    def unstake(self, pool_key:str, balance_manager_key: str, tx: SuiTransaction) -> SuiTransaction:
+    def unstake(self, pool_key: str, balance_manager_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
-        Unstake a specified amount from the pool
+        Unstake amount from the pool
 
         :pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManager
@@ -62,7 +60,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
@@ -97,7 +95,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
@@ -124,7 +122,6 @@ class GovernanceContract:
         """
         Vote on a proposal
 
-
         :param pool_key: key to identify the pool
         :param balance_manager_key: key to identify the BalanceManger
         :param proposal_id: ID of the proposal to vote on
@@ -133,8 +130,7 @@ class GovernanceContract:
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         
-
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
