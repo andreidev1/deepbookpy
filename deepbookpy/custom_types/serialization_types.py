@@ -6,10 +6,6 @@ class VecSet(Struct):
         ("constants", ArrayT(Uint128))  
     ]
 
-class ID(Struct):
-    _fields = [
-        ("bytes", Address) 
-    ]
 
 class OrderDeepPrice(Struct):
     _fields = [
@@ -17,9 +13,14 @@ class OrderDeepPrice(Struct):
         ("deep_per_asset", Uint64),
     ]
 
+
+class OptionID(RustOptional):
+    _type = BytesT(32)
+
+
 class Order(Struct):
     _fields = [
-        ("balance_manager_id", ID),
+        ("balance_manager_id", Address),
         ("order_id", Uint128),
         ("client_order_id", Uint64),
         ("quantity", Uint64),
@@ -32,16 +33,13 @@ class Order(Struct):
     ]
 
 
-class OptionID(RustOptional):
-    _type = BytesT(32)
-
-
 class Balances(Struct):
     _fields = [
         ("base", Uint64),
         ("quote", Uint64),
         ("deep", Uint64)
     ]
+
 
 class Account(Struct):
     _fields = [
@@ -52,8 +50,12 @@ class Account(Struct):
         ("active_stake", Uint64),
         ("inactive_stake", Uint64),
         ("created_proposal", BoolT),
-        ("voted_proposal", ID),  # Optional ID
+        ("voted_proposal", OptionID),  # Optional ID
         ("unclaimed_rebates", Balances),
         ("settled_balances", Balances),
         ("owed_balances", Balances)
     ]
+
+
+class RangeInput(Struct):
+    _fields = [("range", ArrayT(Uint64))]    

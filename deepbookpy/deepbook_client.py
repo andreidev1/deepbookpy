@@ -13,7 +13,7 @@ from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
 from deepbookpy.transactions.deepbook import DeepBookContract
 from deepbookpy.transactions.flash_loans import FlashLoanContract
 from deepbookpy.transactions.governance import GovernanceContract
-from deepbookpy.custom_types.serialization_types import VecSet, Order, ID, Account, OrderDeepPrice
+from deepbookpy.custom_types.serialization_types import VecSet, Order, Account, RangeInput, OrderDeepPrice
 
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
@@ -101,7 +101,6 @@ class DeepBookClient:
         base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
         quote_scalar = self._config.get_coin(pool["quote_coin"])["scalar"]
 
-
         self.deepbook.get_quote_quantity_out(pool_key, base_quantity, tx)
 
         result = tx.inspect_all().results
@@ -129,7 +128,6 @@ class DeepBookClient:
         pool = self._config.get_pool(pool_key)
         base_scalar = self._config.get_coin(pool["base_coin"])["scalar"]
         quote_scalar =self._config.get_coin(pool["quote_coin"])["scalar"]
-
 
         self.deepbook.get_base_quantity_out(pool_key, quote_quantity, tx)
 
@@ -215,9 +213,8 @@ class DeepBookClient:
             return order_info
         except:
             return None
-        
-    # WIP
-    def get_orders(self, pool_key: str, order_ids: list[str]) -> bytes:
+
+    def get_orders(self, pool_key: str, order_ids: list[str]) -> List[Order]:
         """
         Retrieves information for multiple specific orders in a pool.
 
@@ -231,15 +228,37 @@ class DeepBookClient:
 
         result = tx.inspect_all().results
 
-
         parsed_bytes = result[0]["returnValues"][0][0]
 
-        #order_info = ArrayT(Order.deserialize(bytes(parsed_bytes)))
+        # Each order is 99 bytes
+        bytes_per_order = 99
+        
+        # Process each order
+        orders = []
+        
+        # Process the first order
+        if len(order_ids) >= 1:
+            orders.append(Order.deserialize(parsed_bytes[:bytes_per_order]))
+        
+        # Process additional orders
+        initial_pos = bytes_per_order
+        for i in range(1, len(order_ids)):
+            next_pos = initial_pos + bytes_per_order
+            
+            # Ensure we don't go out of bounds
+            if next_pos <= len(parsed_bytes):
+                order_bytes = parsed_bytes[initial_pos:next_pos]
+                order_info = Order.deserialize(order_bytes)
+                orders.append(order_info)
+            else:
+                print(f"Warning: Not enough bytes for order {i+1}")
+            
+            # Update initial_pos for the next iteration
+            initial_pos = next_pos
+        
+        return orders
 
-        return parsed_bytes
-    
-    # WIP
-    def get_level2_range(self, pool_key: str, price_low: str, price_high: int, is_bid: bool):
+    def get_level2_range(self, pool_key: str, price_low: int, price_high: int, is_bid: bool):
         """
         Get level 2 order book specifying range of price
 
@@ -259,10 +278,22 @@ class DeepBookClient:
 
         result = tx.inspect_all().results
 
-        #prices = 
+        prices = result[0]["returnValues"][0][0]
+        parsed_prices = RangeInput.deserialize(prices).__dict__
+        quantities = result[0]["returnValues"][1][0]
+        parsed_quantities = RangeInput.deserialize(quantities).__dict__
 
+        return dict(
+            prices=[
+                round((float(price) / FLOAT_SCALAR / quote_coin["scalar"]) * base_coin["scalar"], 9)
+                for price in parsed_prices["range"]
+            ],
+            quantities=[
+                round(float(quantity) / base_coin["scalar"], 9)
+                for quantity in parsed_quantities["range"]
+            ],
+        )
 
-    # WIP
     def get_level2_ticks_from_mid(self, pool_key: str, ticks: int):
         """
         Get level 2 order book ticks from mid-price for a pool
@@ -280,9 +311,38 @@ class DeepBookClient:
         self.deepbook.get_level2_ticks_from_mid(pool_key, ticks, tx)
 
         result = tx.inspect_all().results
+        
+        bid_prices = result[0]["returnValues"][0][0]
+        parsed_bid_prices = RangeInput.deserialize(bid_prices).__dict__
 
+        bid_quantities = result[0]["returnValues"][1][0]
+        parsed_bid_quantities = RangeInput.deserialize(bid_quantities).__dict__
 
-    # WIP
+        ask_prices = result[0]["returnValues"][2][0]
+        parsed_ask_prices = RangeInput.deserialize(ask_prices).__dict__
+
+        ask_quantities = result[0]["returnValues"][3][0]
+        parsed_ask_quantities = RangeInput.deserialize(ask_quantities).__dict__
+
+        return dict(
+                bid_prices=[
+                    round((float(price) / FLOAT_SCALAR / quote_coin["scalar"]) * base_coin["scalar"], 9)
+                    for price in parsed_bid_prices["range"]
+                ],
+                bid_quantities=[
+                    round(float(quantity) / base_coin["scalar"], 9)
+                    for quantity in parsed_bid_quantities["range"]
+                ],
+                ask_prices=[
+                    round((float(price) / FLOAT_SCALAR / quote_coin["scalar"]) * base_coin["scalar"], 9)
+                    for price in parsed_ask_prices["range"]
+                ],
+                ask_quantities=[
+                    round(float(quantity) / base_coin["scalar"], 9)
+                    for quantity in parsed_ask_quantities["range"]
+                ],
+            )
+
     def account(self, pool_key: str, manager_key: str):
         """
         Get the account information for a given pool and balance manager
@@ -300,9 +360,36 @@ class DeepBookClient:
 
         result = tx.inspect_all().results
 
-        account_information = Account.deserialize(bytes(result[0]["returnValues"][0][0]))
-        #acc = result[0]["returnValues"][0][0]
-        return account_information
+        final_results = result[0]["returnValues"][0][0]
+
+        account = Account.deserialize(final_results)
+        
+        return dict(
+            epoch = account.epoch,
+            open_orders = account.open_orders.__dict__,
+            taker_volume = account.taker_volume / base_scalar,
+            maker_volume = account.maker_volume / base_scalar,
+            active_stake = account.active_stake / DEEP_SCALAR,
+            inactive_stake = account.inactive_stake / DEEP_SCALAR,
+            created_proposal = account.created_proposal,
+            voted_proposal = dict(account.voted_proposal.__dict__)["value"],
+            unclaimed_rebates = dict(
+                base = account.unclaimed_rebates.base / base_scalar,
+                quote = account.unclaimed_rebates.quote / quote_scalar,
+                deep = account.unclaimed_rebates.deep / DEEP_SCALAR
+            ),
+            settled_balances = dict(
+                base = account.settled_balances.base / base_scalar,
+                quote = account.settled_balances.quote / quote_scalar,
+                deep = account.settled_balances.deep / DEEP_SCALAR
+            ),
+            owed_balances = dict(
+                base = account.owed_balances.base / base_scalar,
+                quote = account.owed_balances.quote / quote_scalar,
+                deep = account.owed_balances.deep / DEEP_SCALAR
+            )
+        )
+
 
     def get_order_normalized(self, pool_key: str, order_id: str) -> Dict[str, Any]:
         """
