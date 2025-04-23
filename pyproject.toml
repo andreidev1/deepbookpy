@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pysui = "^0.76.0"
+pysui = "^0.82.0"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
