@@ -74,7 +74,19 @@ if __name__ == "__main__":
     # call get_order method from deepbook_client
     #print(deepbook_client.get_order("SUI_USDC", deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1")[0]))
 
-    # call get_order_norrmalized method from deepbook_client
+    # call account method from deepbook_client
+    # print(deepbook_client.account("DEEP_SUI", "MANAGER_1"))
+
+    # call get_orders method from deepbook_client
+    #print(deepbook_client.get_orders("SUI_DBUSDC", ["170141183460487678475761013267500113861", "170141183460487678475761013267500113862"]))
+
+    # call get_level2_range()
+    #print(deepbook_client.get_level2_range("DEEP_SUI", 1, 10, False))
+
+    # call get_level2_ticks_from_mid()
+    #print(deepbook_client.get_level2_ticks_from_mid("DEEP_SUI", 1))
+
+    # call get_order_normalized method from deepbook_client
     #order_id = deepbook_client.account_open_orders("SUI_USDC", "MANAGER_1")[0]
     #print(deepbook_client.get_order_normalized("SUI_USDC", order_id))
 

@@ -1,9 +1,12 @@
-[tool.poetry]
+[project]
 name = "deepbookpy"
-version = "0.4.2"
+version = "0.5.0"
 description = "Sui Deepbook Python SDK"
-authors = ["andreidev1 <andreid.dev@gmail.com>"]
+authors = [{ name = "Andrei", email = "andreid.dev@gmail.com" }]
 readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["sui deepbook python sdk", "deepbook", "blockchain"]
+license = { text = "Apache-2.0" }
 
 [tool.poetry.dependencies]
 python = "^3.10"

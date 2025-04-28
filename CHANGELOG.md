@@ -1,3 +1,18 @@
+## [0.5.0] - 2025-04-28
+
+### Added
+
+- compatibility with Deepbook v3 smart contract calls
+
+### Changed
+
+- upgraded pysui to `0.82.0`
+
+### Removed
+
+- v2 smart contract calls
+- v2 docs
+
 ## [0.4.2] - 2023-10-27
 
 
