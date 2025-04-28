@@ -1,10 +1,13 @@
+from typing import Union
+
+from pysui import SuiRpcResult
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU128, SuiU64, SuiU8, SuiBoolean
 
-from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR, DEEP_SCALAR
-from deepbookpy.custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR, DEEP_SCALAR, POOL_CREATION_FEE
+from deepbookpy.custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams, CreatePermissionlessPoolParams
 from deepbookpy.utils.constants import CLOCK, DEFAULT_EXPIRATION_TIMESTAMP
-from deepbookpy.utils.coin import coins_with_balance
+from deepbookpy.utils.coin import coin_with_balance
 
 class DeepBookContract:
     def __init__(self, config: DeepBookConfig):
@@ -555,11 +558,12 @@ class DeepBookContract:
 
         return tx
 
-    def swap_exact_base_for_quote(self, sender_with_result: any, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
+    def swap_exact_base_for_quote(self, sender_with_result: Union[SuiRpcResult, Exception], params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
 
         """
         Swap exact base amount for quote amount
 
+        :param sender_with_result: list of owned objects
         :param SwapParams: Parameters for the swap
         :param coin_object: coin object ID
         :return: SuiTransaction object
@@ -580,9 +584,9 @@ class DeepBookContract:
 
         quote = round(base_amount * base_coin["scalar"])
 
-        base_coin_input = params.base_coin if params.base_coin is not None else coins_with_balance(sender_with_result, base_coin["type"], quote, tx)
+        base_coin_input = params.base_coin if params.base_coin is not None else coin_with_balance(sender_with_result, base_coin["type"], quote, tx)
 
-        deep_coin_test = params.deep_coin if params.deep_coin is not None else coins_with_balance(sender_with_result, deep_coin_type, deep_amount, tx)
+        deep_coin_test = params.deep_coin if params.deep_coin is not None else coin_with_balance(sender_with_result, deep_coin_type, deep_amount, tx)
 
         min_quote_input = round(min_quote * quote_coin["scalar"])
 
@@ -600,10 +604,11 @@ class DeepBookContract:
 
         return base_coin_result, quote_coin_result, deep_coin_result
 
-    def swap_exact_quote_for_base(self, sender_with_result: any,  params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
+    def swap_exact_quote_for_base(self, sender_with_result: Union[SuiRpcResult, Exception],  params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
         """
         Swap exact quote amount for base amount
 
+        :param sender_with_result: list of owned objects
         :param SwapParams: Parameters for the swap
         :param coin_object: coin object ID
         :return: SuiTransaction object
@@ -622,9 +627,9 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        quote_coin_input = params.quote_coin if params.quote_coin is not None else coins_with_balance(sender_with_result, quote_coin["type"], round(quote_amount * quote_coin["scalar"]), tx)
+        quote_coin_input = params.quote_coin if params.quote_coin is not None else coin_with_balance(sender_with_result, quote_coin["type"], round(quote_amount * quote_coin["scalar"]), tx)
 
-        deep_coin = params.deep_coin if params.deep_coin is not None else coins_with_balance(sender_with_result, deep_coin_type, round(deep_amount * DEEP_SCALAR), tx)
+        deep_coin = params.deep_coin if params.deep_coin is not None else coin_with_balance(sender_with_result, deep_coin_type, round(deep_amount * DEEP_SCALAR), tx)
 
         min_base_input = round(min_base * quote_coin["scalar"])
 
@@ -753,3 +758,48 @@ class DeepBookContract:
         )
 
         return tx
+    
+        
+    def create_permisionless_pool(self, sender_with_result: Union[SuiRpcResult, Exception], params: CreatePermissionlessPoolParams, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Create a new pool permissionlessly
+
+        :param sender_with_result: list of owned objects
+        :param pool_key: Parameters for creating permissionless pool
+        :return: SuiTransaction object
+        """
+        
+        base_coin_key = params.base_coin_key
+        quote_coin_key = params.quote_coin_key
+        tick_size = params.tick_size
+        lot_size = params.lot_size
+        min_size = params.min_size
+        deep_coin = params.deep_coin
+
+        base_coin = self.__config.get_coin(base_coin_key)
+        quote_coin = self.__config.get_coin(quote_coin_key)
+        deep_coin_type = self.__config.get_coin("DEEP")["type"]
+
+        base_scalar = base_coin["scalar"]
+        quote_scalar = quote_coin["scalar"]
+
+        adjusted_tick_size = tick_size * FLOAT_SCALAR * quote_scalar / base_scalar
+        adjusted_lot_size = lot_size * base_scalar
+        adjusted_min_size = min_size * base_scalar
+
+        deep_coin_input = deep_coin if deep_coin is not None else coin_with_balance(sender_with_result, deep_coin_type, POOL_CREATION_FEE, tx)
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::create_permissionless_pool",
+            arguments=[
+                ObjectID(self.__config.REGISTRY_ID),
+                SuiU64(adjusted_tick_size),
+                SuiU64(adjusted_lot_size),
+                SuiU64(adjusted_min_size),
+                deep_coin_input
+                ],
+           type_arguments=[base_coin['type'], quote_coin['type']],
+        )
+
+        return tx
+    

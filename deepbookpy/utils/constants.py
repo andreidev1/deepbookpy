@@ -22,7 +22,7 @@ testnet_package_ids: DeepbookPackageIds = {
 }
 
 mainnet_package_ids: DeepbookPackageIds = {
-    "DEEPBOOK_PACKAGE_ID": "0x2c8d603bc51326b8c13cef9dd07031a408a48dddb541963357661df5d3204809",
+    "DEEPBOOK_PACKAGE_ID": "0xcaf6ba059d539a97646d47f0b9ddf843e138d215e2a12ca1f4585d386f7aec3a",
     "REGISTRY_ID": "0xaf16199a2dff736e9f07a845f23c5da6df6f756eddb631aed9d24a93efc4549d",
     "DEEP_TREASURY_ID": "0x032abf8948dda67a271bcc18e776dbbcfb0d58c8d288a700ff0d5521e57a1ffe",
 }

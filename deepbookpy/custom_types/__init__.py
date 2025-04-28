@@ -80,3 +80,13 @@ class SwapParams:
     deep_coin: Optional['TransactionObjectArgument'] = None
     base_coin: Optional['TransactionObjectArgument'] = None
     quote_coin: Optional['TransactionObjectArgument'] = None
+
+
+@dataclass
+class CreatePermissionlessPoolParams:
+    base_coin_key: str
+    quote_coin_key: str
+    tick_size: int
+    lot_size: int
+    min_size: int
+    deep_coin: Optional['TransactionObjectArgument'] = None

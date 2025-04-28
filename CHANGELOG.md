@@ -1,3 +1,9 @@
+## [0.6.0] - 2025-04-28
+
+### Added
+
+- Add support for Deepbook 3.1
+
 ## [0.5.1] - 2025-04-28
 
 ### Fixed
