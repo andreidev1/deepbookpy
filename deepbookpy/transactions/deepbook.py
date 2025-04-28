@@ -1,12 +1,10 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU128, SuiU64, SuiU8, SuiBoolean
 
-from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR, DEEP_SCALAR
 from deepbookpy.custom_types import PlaceLimitOrderParams, PlaceMarketOrderParams, SwapParams
-from deepbookpy.utils.constants import CLOCK
-
-
-
+from deepbookpy.utils.constants import CLOCK, DEFAULT_EXPIRATION_TIMESTAMP
+from deepbookpy.utils.coin import coins_with_balance
 
 class DeepBookContract:
     def __init__(self, config: DeepBookConfig):
@@ -31,12 +29,11 @@ class DeepBookContract:
         price = params.price
         quantity = params.quantity
         is_bid = params.is_bid
-        expiration = params.expiration
-        order_type = params.order_type
-        self_matching_option = params.self_matching_option
+        expiration = params.expiration or DEFAULT_EXPIRATION_TIMESTAMP
+        order_type = params.order_type or 0
+        self_matching_option = params.self_matching_option or 0
         pay_with_deep = True
 
-        
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
@@ -44,7 +41,7 @@ class DeepBookContract:
         input_price = round((price * FLOAT_SCALAR * quote_coin["scalar"]) / base_coin["scalar"])
         input_quantity = round(quantity * base_coin["scalar"])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::place_limit_order",
@@ -79,9 +76,8 @@ class DeepBookContract:
         client_order_id = params.client_order_id
         quantity = params.quantity
         is_bid = params.is_bid
-        self_matching_option = params.self_matching_option
+        self_matching_option = params.self_matching_option or 0
         pay_with_deep = True
-
         
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -89,7 +85,7 @@ class DeepBookContract:
         quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(quantity * base_coin["scalar"])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::place_market_order",
@@ -125,7 +121,7 @@ class DeepBookContract:
         quote_coin = self.__config.get_coin(pool['quote_coin'])
         input_quantity = round(new_quantity * base_coin["scalar"])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::modify_order",
@@ -156,7 +152,7 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::cancel_order",
@@ -186,7 +182,7 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::cancel_all_orders",
@@ -214,7 +210,7 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)
+        trade_proof = self.__config.balance_manager.generate_proof(balance_manager_key)(tx)
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::withdraw_settled_amounts",
@@ -243,13 +239,12 @@ class DeepBookContract:
         reference_base_coin = self.__config.get_coin(reference_pool['base_coin'])
         reference_quote_coin = self.__config.get_coin(reference_pool['quote_coin'])
 
-       
-
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::add_deep_price_point",
             arguments=[
                 ObjectID(target_pool['address']),
-                ObjectID(reference_pool['address'])
+                ObjectID(reference_pool['address']),
+                ObjectID(CLOCK)
                 ],
             type_arguments=[
                 target_base_coin['type'],
@@ -272,7 +267,6 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-       
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_order",
@@ -296,13 +290,12 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-       
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_orders",
             arguments=[
                 ObjectID(pool['address']),
-                SuiU128(order_ids)
+                [SuiU128(order_id) for order_id in order_ids]
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
         )
@@ -320,7 +313,6 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
        
-
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::burn_deep",
             arguments=[
@@ -342,7 +334,6 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-       
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::mid_price",
@@ -387,7 +378,6 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-       
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::get_quote_quantity_out",
@@ -565,22 +555,22 @@ class DeepBookContract:
 
         return tx
 
-    def swap_exact_base_for_quote(self, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
+    def swap_exact_base_for_quote(self, sender_with_result: any, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
 
         """
         Swap exact base amount for quote amount
 
         :param SwapParams: Parameters for the swap
+        :param coin_object: coin object ID
         :return: SuiTransaction object
         """
-
 
         if(params.quote_coin) :
             raise ValueError("quote coin is not accepted for swapping base asset")
 
         pool_key = params.pool_key
         base_amount = params.amount
-        deep_amount = params.deep_amount
+        deep_amount = round(params.deep_amount * DEEP_SCALAR)
         min_quote = params.min_out
 
         pool = self.__config.get_pool(pool_key)
@@ -588,45 +578,34 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        base_coin_input = (
-            params.base_coin 
-            if params.base_coin is not None 
-            else dict(
-                type=base_coin["type"], 
-                balance=round(base_amount * base_coin["scalar"])
-            )
-        )
-        
-        deep_coin = (
-            params.deep_coin 
-            if params.base_coin is not None 
-            else dict(
-                type=deep_coin_type, 
-                balance=round(deep_amount * base_coin["scalar"])
-            )
-        )
+        quote = round(base_amount * base_coin["scalar"])
+
+        base_coin_input = params.base_coin if params.base_coin is not None else coins_with_balance(sender_with_result, base_coin["type"], quote, tx)
+
+        deep_coin_test = params.deep_coin if params.deep_coin is not None else coins_with_balance(sender_with_result, deep_coin_type, deep_amount, tx)
 
         min_quote_input = round(min_quote * quote_coin["scalar"])
 
-        tx.move_call(
+        base_coin_result, quote_coin_result, deep_coin_result = tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_base_for_quote",
             arguments=[
                 ObjectID(pool["address"]),
                 base_coin_input,
-                deep_coin,
+                deep_coin_test,
                 SuiU64(min_quote_input),
                 ObjectID(CLOCK)
                 ],
            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
-        return tx
+        return base_coin_result, quote_coin_result, deep_coin_result
 
-    def swap_exact_quote_for_base(self, params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
+    def swap_exact_quote_for_base(self, sender_with_result: any,  params: SwapParams, tx: SuiTransaction ) -> SuiTransaction:
         """
         Swap exact quote amount for base amount
 
         :param SwapParams: Parameters for the swap
+        :param coin_object: coin object ID
         :return: SuiTransaction object
         """
 
@@ -634,7 +613,7 @@ class DeepBookContract:
             raise ValueError("quote coin is not accepted for swapping base asset")
 
         pool_key = params.pool_key
-        base_amount = params.amount
+        quote_amount = params.amount
         deep_amount = params.deep_amount
         min_base = params.min_out
 
@@ -643,31 +622,17 @@ class DeepBookContract:
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
 
-        base_coin_input = (
-            params.base_coin 
-            if params.base_coin is not None 
-            else dict(
-                type=base_coin["type"], 
-                balance=round(base_amount * base_coin["scalar"])
-            )
-        )
+        quote_coin_input = params.quote_coin if params.quote_coin is not None else coins_with_balance(sender_with_result, quote_coin["type"], round(quote_amount * quote_coin["scalar"]), tx)
 
-        deep_coin = (
-            params.deep_coin 
-            if params.base_coin is not None 
-            else dict(
-                type=deep_coin_type, 
-                balance=round(deep_amount * base_coin["scalar"])
-            )
-        )
+        deep_coin = params.deep_coin if params.deep_coin is not None else coins_with_balance(sender_with_result, deep_coin_type, round(deep_amount * DEEP_SCALAR), tx)
 
         min_base_input = round(min_base * quote_coin["scalar"])
 
-        tx.move_call(
+        base_coin_result, quote_coin_result, deep_coin_result = tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::swap_exact_quote_for_base",
             arguments=[
-                ObjectID(self.__config.REGISTRY_ID),
-                base_coin_input,
+                ObjectID(pool["address"]),
+                quote_coin_input,
                 deep_coin,
                 SuiU64(min_base_input),
                 ObjectID(CLOCK)
@@ -675,7 +640,7 @@ class DeepBookContract:
            type_arguments=[base_coin['type'], quote_coin['type']],
         )
 
-        return tx
+        return base_coin_result, quote_coin_result, deep_coin_result
 
     def pool_trade_params(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
         """
@@ -709,7 +674,6 @@ class DeepBookContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-
 
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::pool_book_params",
