@@ -1,6 +1,6 @@
-from transactions.balance_manager import BalanceManagerContract
+from deepbookpy.transactions.balance_manager import BalanceManagerContract
 from .constants import mainnet_coins, mainnet_pools, mainnet_package_ids, testnet_coins, testnet_pools, testnet_package_ids
-from .normalizer import normalize_sui_address
+from deepbookpy.utils.normalizer import normalize_sui_address
 from dataclasses import dataclass
 
 FLOAT_SCALAR = 1000000000

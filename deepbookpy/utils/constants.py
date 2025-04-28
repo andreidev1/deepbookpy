@@ -1,7 +1,7 @@
 from typing import TypedDict, Dict
 from dataclasses import dataclass
-from custom_types import Coin, Pool
-from utils.normalizer import normalize_sui_object_id
+from deepbookpy.custom_types import Coin, Pool
+from deepbookpy.utils.normalizer import normalize_sui_object_id
 
 """Sui Constants"""
 

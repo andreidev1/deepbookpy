@@ -1,6 +1,6 @@
 [project]
 name = "deepbookpy"
-version = "0.5.0"
+version = "0.5.1"
 description = "Sui Deepbook Python SDK"
 authors = [{ name = "Andrei", email = "andreid.dev@gmail.com" }]
 readme = "README.md"
