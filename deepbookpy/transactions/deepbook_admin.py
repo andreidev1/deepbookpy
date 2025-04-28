@@ -1,5 +1,5 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
-from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8, SuiBoolean
+from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
@@ -26,7 +26,7 @@ class DeepBookAdminContract:
             raise EnvironmentError('ADMIN_CAP environment variable not set')
         return admin_cap
 
-    def create_pool_admin(self, params: CreatePoolAdminParams, tx: SuiTransaction) -> SuiTransaction:
+    def create_pool_admin(self, params: CreatePoolAdminParams, admin_cap: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Create a new pool as admin
 
@@ -34,6 +34,7 @@ class DeepBookAdminContract:
         :return: SuiTransaction object
         """
         base_coin_key = params.base_coin_key
+
         quote_coin_key = params.quote_coin_key
         tick_size = params.tick_size
         lot_size = params.lot_size
@@ -44,8 +45,8 @@ class DeepBookAdminContract:
         base_coin = self.__config.get_coin(base_coin_key)
         quote_coin = self.__config.get_coin(quote_coin_key)
         
-        base_scalar = base_coin.scalar
-        quote_scalar = quote_coin.scalar
+        base_scalar = base_coin["scalar"]
+        quote_scalar = quote_coin["scalar"]
 
         adjusted_tick_size = tick_size * FLOAT_SCALAR * quote_scalar
         adjusted_lot_size = lot_size * base_scalar
@@ -60,14 +61,14 @@ class DeepBookAdminContract:
                 SuiU64(adjusted_min_size),
                 SuiBoolean(whitelisted),
                 SuiBoolean(stable_pool),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
             type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
     
-    def unregister_pool_admin(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction:
+    def unregister_pool_admin(self, pool_key: str,  admin_cap: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Unregister a pool as admin
         
@@ -84,14 +85,14 @@ class DeepBookAdminContract:
             arguments=[
                 ObjectID(pool["address"]),
                 ObjectID(self.__config.REGISTRY_ID),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
             type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
     
-    def updated_allowed_versions(self, pool_key: str, tx: SuiTransaction) -> SuiTransaction :
+    def update_allowed_versions(self, pool_key: str, admin_cap: str, tx: SuiTransaction) -> SuiTransaction :
         """
         Update the allowed versions for a pool
 
@@ -102,39 +103,39 @@ class DeepBookAdminContract:
         pool = self.__config.get_pool(pool_key)
         base_coin = self.__config.get_coin(pool['base_coin'])
         quote_coin = self.__config.get_coin(pool['quote_coin'])
-
+        
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::update_allowed_versions",
             arguments=[
                 ObjectID(pool["address"]),
                 ObjectID(self.__config.REGISTRY_ID),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
             type_arguments=[base_coin["type"], quote_coin["type"]]
         )
 
         return tx
     
-    def enable_version(self, version: int, tx: SuiTransaction) -> SuiTransaction:
+    def enable_version(self, version: int, admin_cap: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Enable a specific transaction
 
         :param version: the version to be enabled
         :return: SuiTransaction object
         """
-        
+
         tx.move_call(
             target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::enable_version",
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiU64(version),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
         )
 
         return tx
     
-    def disable_version(self, version: int, tx: SuiTransaction) -> SuiTransaction:
+    def disable_version(self, version: int, admin_cap: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Disable a specific transaction
 
@@ -147,13 +148,13 @@ class DeepBookAdminContract:
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiU64(version),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
         )
 
         return tx
     
-    def set_treasury_address(self, treasury_address: int, tx: SuiTransaction) -> SuiTransaction:
+    def set_treasury_address(self, treasury_address: SuiAddress, admin_cap: str, tx: SuiTransaction) -> SuiTransaction:
         """
         Sets the treasury address where pool creation fees will be sent
 
@@ -166,7 +167,7 @@ class DeepBookAdminContract:
             arguments=[
                 ObjectID(self.__config.REGISTRY_ID),
                 SuiAddress(treasury_address),
-                ObjectID(self.__admin_cap)
+                ObjectID(admin_cap)
             ],
         )
 
