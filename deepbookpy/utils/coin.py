@@ -77,12 +77,12 @@ def get_coin_object(sender_with_result: Union[SuiRpcResult, Exception], coin_typ
         sys.exit(1)
 
 
-def get_highest_object_balance(sender_with_result: object, coin_type: str) -> ObjectID:
+def get_highest_object_balance(sender_with_result: Union[SuiRpcResult, Exception], coin_type: str) -> ObjectID:
     """
     Get coin object ID with highest balance that sender owns in his SUI wallet.
     
     :param sender_with_result: list of owned objects
-    :param coin_type:
+    :param coin_type: coin type
     :returns: Object ID
 
     """
@@ -91,11 +91,11 @@ def get_highest_object_balance(sender_with_result: object, coin_type: str) -> Ob
     return highest_balance_object_id
 
 
-def coins_with_balance(sender_with_result: object, coin_type: str, amount: int, txn: SuiTransaction) -> Union[bcs.Argument, list[bcs.Argument]] :
+def coin_with_balance(sender_with_result: Union[SuiRpcResult, Exception], coin_type: str, amount: int, txn: SuiTransaction) -> Union[bcs.Argument, list[bcs.Argument]] :
     """
     A helper function that simulate basic functionality of coinsWithBalance() intent method from Transaction Plugin
 
-    :param sender_with_result:
+    :param sender_with_result: list of owned objects
     :param coin_type: coin type
     :param txn: SuiTransaction object
     :returns: A result or list of results types to use in subsequent commands

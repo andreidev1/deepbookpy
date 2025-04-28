@@ -173,3 +173,46 @@ class DeepBookAdminContract:
 
         return tx
     
+    def add_stable_coin(self, stable_coin_key: str, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Add a coin to whitelist of stable coins
+
+        :param stable_coin_key: The name of the stable coin to be added
+        :param tx: SuiTransaction object
+        :returns: SuiTransaction object
+        """
+
+        stable_coin_type = self.__config.get_coin(stable_coin_key)["type"]
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::add_stablecoin",
+            arguments=[
+                ObjectID(self.__config.REGISTRY_ID),
+                ObjectID(self.__admin_cap())
+            ],
+            type_arguments=[stable_coin_type]
+        )
+
+        return tx
+    
+    def remove_stable_coin(self, stable_coin_key: str, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Remove a coin from whitelist of stable coins
+
+        :param stable_coin_key: The name of the stable coin to be removed
+        :param tx: SuiTransaction object
+        :returns: SuiTransaction object
+        """
+
+        stable_coin_type = self.__config.get_coin(stable_coin_key)["type"]
+
+        tx.move_call(
+            target = f"{self.__config.DEEPBOOK_PACKAGE_ID}::registry::remove_stablecoin",
+            arguments=[
+                ObjectID(self.__config.REGISTRY_ID),
+                ObjectID(self.__admin_cap())
+            ],
+            type_arguments=[stable_coin_type]
+        )
+
+        return tx
