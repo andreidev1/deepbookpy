@@ -1,10 +1,9 @@
 from canoser import Struct, ArrayT, Uint8, Uint64, Uint128, BoolT, BytesT, RustOptional
 from pysui.sui.sui_types.bcs import Address
 
+
 class VecSet(Struct):
-    _fields = [
-        ("constants", ArrayT(Uint128))  
-    ]
+    _fields = [("constants", ArrayT(Uint128))]
 
 
 class OrderDeepPrice(Struct):
@@ -34,11 +33,7 @@ class Order(Struct):
 
 
 class Balances(Struct):
-    _fields = [
-        ("base", Uint64),
-        ("quote", Uint64),
-        ("deep", Uint64)
-    ]
+    _fields = [("base", Uint64), ("quote", Uint64), ("deep", Uint64)]
 
 
 class Account(Struct):
@@ -53,9 +48,9 @@ class Account(Struct):
         ("voted_proposal", OptionID),  # Optional ID
         ("unclaimed_rebates", Balances),
         ("settled_balances", Balances),
-        ("owed_balances", Balances)
+        ("owed_balances", Balances),
     ]
 
 
 class RangeInput(Struct):
-    _fields = [("range", ArrayT(Uint64))]    
+    _fields = [("range", ArrayT(Uint64))]

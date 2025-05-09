@@ -15,10 +15,14 @@ from pysui.sui.sui_types import bcs, ObjectID
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 
 
-SUI_COIN_TYPE = "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+SUI_COIN_TYPE = (
+    "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI"
+)
+
 
 class InsufficientCoinsError(Exception):
     pass
+
 
 @dataclass
 class BalanceObject:
@@ -35,7 +39,10 @@ def wrap_coin_type(coin_type: str) -> str:
     """
     return "0x2::coin::Coin<" + coin_type + ">"
 
-def get_coin_object(sender_with_result: Union[SuiRpcResult, Exception], coin_type: str) -> Union[List[BalanceObject], InsufficientCoinsError]:
+
+def get_coin_object(
+    sender_with_result: Union[SuiRpcResult, Exception], coin_type: str
+) -> Union[List[BalanceObject], InsufficientCoinsError]:
     """
     Get coin object
 
@@ -52,19 +59,24 @@ def get_coin_object(sender_with_result: Union[SuiRpcResult, Exception], coin_typ
 
                 wrapped_coin_type = wrap_coin_type(coin_type)
 
-                if r["type"] == wrapped_coin_type and int(r["content"]["fields"]["balance"]) > 0:
+                if (
+                    r["type"] == wrapped_coin_type
+                    and int(r["content"]["fields"]["balance"]) > 0
+                ):
                     filtered = {
                         "objectId": r["objectId"],
                         "type": r["type"],
-                        "balance": int(r["content"]["fields"]["balance"])
+                        "balance": int(r["content"]["fields"]["balance"]),
                     }
                     filtered_objects.append(filtered)
         else:
-            print(sender_with_result.result_string)
+            # print(sender_with_result.result_string)
             sys.exit(1)
 
         if len(filtered_objects) == 0:
-            raise InsufficientCoinsError(f"Not enough coins of type to satisfy {coin_type} requested balance")
+            raise InsufficientCoinsError(
+                f"Not enough coins of type to satisfy {coin_type} requested balance"
+            )
 
         return filtered_objects
 
@@ -77,21 +89,30 @@ def get_coin_object(sender_with_result: Union[SuiRpcResult, Exception], coin_typ
         sys.exit(1)
 
 
-def get_highest_object_balance(sender_with_result: Union[SuiRpcResult, Exception], coin_type: str) -> ObjectID:
+def get_highest_object_balance(
+    sender_with_result: Union[SuiRpcResult, Exception], coin_type: str
+) -> ObjectID:
     """
     Get coin object ID with highest balance that sender owns in his SUI wallet.
-    
+
     :param sender_with_result: list of owned objects
     :param coin_type: coin type
     :returns: Object ID
 
     """
-    highest_balance_object_id = max(get_coin_object(sender_with_result, coin_type), key=lambda x: x["balance"])
+    highest_balance_object_id = max(
+        get_coin_object(sender_with_result, coin_type), key=lambda x: x["balance"]
+    )
 
     return highest_balance_object_id
 
 
-def coin_with_balance(sender_with_result: Union[SuiRpcResult, Exception], coin_type: str, amount: int, txn: SuiTransaction) -> Union[bcs.Argument, list[bcs.Argument]] :
+def coin_with_balance(
+    sender_with_result: Union[SuiRpcResult, Exception],
+    coin_type: str,
+    amount: int,
+    txn: SuiTransaction,
+) -> Union[bcs.Argument, list[bcs.Argument]]:
     """
     A helper function that simulate basic functionality of coinsWithBalance() intent method from Transaction Plugin
 
@@ -106,7 +127,9 @@ def coin_with_balance(sender_with_result: Union[SuiRpcResult, Exception], coin_t
     if coin_type == SUI_COIN_TYPE:
         return txn.split_coin(coin=txn.gas, amounts=amount)
 
-    highest_balance_object_id = get_highest_object_balance(sender_with_result, coin_type)["objectId"]
+    highest_balance_object_id = get_highest_object_balance(
+        sender_with_result, coin_type
+    )["objectId"]
 
     result = txn.split_coin(coin=highest_balance_object_id, amounts=amount)
 
