@@ -22,11 +22,13 @@ class Coin:
     type: str
     scalar: int
 
+
 @dataclass
 class Pool:
     address: str
     base_coin: str
     quote_coin: str
+
 
 @dataclass
 class CreatePoolAdminParams:
@@ -40,6 +42,7 @@ class CreatePoolAdminParams:
     deep_coin: Optional[object] = None
     base_coin: Optional[object] = None
 
+
 @dataclass
 class ProposalParams:
     pool_key: str
@@ -47,6 +50,7 @@ class ProposalParams:
     taker_fee: float
     maker_fee: float
     stake_required: int
+
 
 @dataclass
 class PlaceLimitOrderParams:
@@ -61,6 +65,7 @@ class PlaceLimitOrderParams:
     self_matching_option: Optional[SelfMatchingOptions] = None
     pay_with_deep: Optional[bool] = None
 
+
 @dataclass
 class PlaceMarketOrderParams:
     pool_key: str
@@ -68,8 +73,9 @@ class PlaceMarketOrderParams:
     client_order_id: str
     quantity: float
     is_bid: bool
-    self_matching_option: Optional[SelfMatchingOptions] = None 
+    self_matching_option: Optional[SelfMatchingOptions] = None
     pay_with_deep: Optional[bool] = None
+
 
 @dataclass
 class SwapParams:
@@ -77,9 +83,9 @@ class SwapParams:
     amount: float
     deep_amount: float
     min_out: float
-    deep_coin: Optional['TransactionObjectArgument'] = None
-    base_coin: Optional['TransactionObjectArgument'] = None
-    quote_coin: Optional['TransactionObjectArgument'] = None
+    deep_coin: Optional["TransactionObjectArgument"] = None
+    base_coin: Optional["TransactionObjectArgument"] = None
+    quote_coin: Optional["TransactionObjectArgument"] = None
 
 
 @dataclass
@@ -89,4 +95,4 @@ class CreatePermissionlessPoolParams:
     tick_size: int
     lot_size: int
     min_size: int
-    deep_coin: Optional['TransactionObjectArgument'] = None
+    deep_coin: Optional["TransactionObjectArgument"] = None

@@ -8,6 +8,7 @@ from deepbookpy.utils.normalizer import normalize_sui_object_id
 CLOCK = normalize_sui_object_id("0x6")
 DEFAULT_EXPIRATION_TIMESTAMP = 1844674407370955161
 
+
 @dataclass
 class DeepbookPackageIds(TypedDict):
     DEEPBOOK_PACKAGE_ID: str
