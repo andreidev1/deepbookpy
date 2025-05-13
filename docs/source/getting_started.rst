@@ -1,5 +1,8 @@
-Quick Start
-------------------
+===============
+Getting Started
+===============
+
+DeepBook Python SDK uses legacy pysui and canoser libraries as main dependencies allowing the interaction with on-chain Deepbook protocol.
 
 Install deepbookpy
 ******************
@@ -17,7 +20,7 @@ Using ``poetry``
 Set up pysui config
 *******************
 
-Replace ``rpc_url``, ``prv_keys``, ``ws_url`` with your desired data.
+Replace ``rpc_url``, ``prv_keys``, ``ws_url`` sample arguments with your own arguments.
 
 .. code:: py
 
@@ -43,84 +46,76 @@ Replace ``rpc_url``, ``prv_keys``, ``ws_url`` with your desired data.
     txn = SyncTransaction(client=client)
 
 
-Instantiate DeepBook Python SDK
-**********************
+Set up DeepBook Python SDK
+**************************
+
+After instantiating pysui client , you also need to instantiate ``DeepBookClient`` and ``DeepBookConfig`` classes.
+
+.. code:: py
+
+    from deepbookpy.deepbook_client import DeepBookClient
+    from deepbookpy.utils.config import DeepBookConfig
 
     # Sample of Balance Manager
     balance_manager = {
         "MANAGER_1" : {
-            "address" : "0x344c2734b1d211bd15212bfb7847c66a3b18803f3f5ab00f5ff6f87b6fe6d27d",
-            "trade_cap" : ""
+            "address" : "0x95784e000eedc2301d3fd1711f4132fdcacf5dec6137e7bfabcfd39e13fed537",
+            "trade_cap" : "",
+            "deposit_cap" : "0xdf55ef1b583f30dda21504153a141003ebbb480b38be6b9f6b68a0d1aaa9d84c",
+            "withdraw_cap" : "0x0ee74c68d83c78e9a29fe36fb110122f2451a82c64830a6d9e9a66c5190032df"
         }
     }
 
     # Init DeepBook Client
     deepbook_client = DeepBookClient(client, current_sui_address, "mainnet", balance_manager)
 
-    # Init deepbook config
+    # Init DeepBook Config
     deepbook_config = DeepBookConfig("mainnet", "0x0", None, balance_manager)
 
 
-Query DeepBook Package
-**********************
+Query DeepBook Protocol
+***********************
 
-In order to query the deepbook package you have to instantiate
-``DeepBookQuery`` class
-
-.. code:: py
-
-   from deepbookpy.deepbook_client import DeepBookClient
-
-
-   deepbook_query = DeepBookClient(
-       client=client,
-       package_id=deepbook_package_id
-   )
-
-Sample of calling ``get_market_price()``
+Get the balance manager ID by calling ``get_balance_manager()``
 
 .. code:: py
 
+   result = deepbook_config.get_balance_manager("MANAGER_1")
+   print(result)
 
-   deepbook_query.get_market_price(
-       pool_id="0xdb4ec5cdc7b98f085ffc8d3e6d7bfaeff5fafe6fb928e2617be9ea501ce1036c"
-   )
-
-Write to DeepBook Package
-*************************
-
-In order to write to the deepbook package you have to instantiate
-``DeepBookClient`` class
+Check balance manager by calling ``check_manager_balance()``
 
 .. code:: py
 
-   from deepbookpy.deepbook_client import DeepBookClient
+   result = deepbook_client.check_manager_balance("MANAGER_1", "SUI")
+   print(result)
 
+On-Chain DeepBook Operations
+****************************
 
-   deepbook = DeepBookClient(
-       client=client,
-       package_id=deepbook_package_id
-   )
+To start interacting with on-chain Deepbook protocol, you first need to create a balance manager ID and then deposit coins into the balance manager.
 
-Sample of executing ``create_pool()``
+Sample of creating a balance manager with deepbookpy 
 
 .. code:: py
 
-   from deepbookpy.deepbook_client import DeepBookClient
+    deepbook_client.balance_manager.create_and_share_balance_manager(txn) 
 
-   create_pool = deepbook.create_pool(
-       base_asset="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::weth::WETH",
-       quote_asset="0x5378a0e7495723f7d942366a125a6556cf56f573fa2bb7171b554a2986c4229a::usdt::USDT",
-       tick_size=10000000,
-       lot_size=10000
-   )
+    # Execute the transaction
+    tx_result = handle_result(txn.execute(gas_budget="10000000"))
+    print(tx_result.to_json(indent=2))
 
-   # Execute the transaction
-   tx_result = create_pool.execute(gas_budget="10000000")
-   if tx_result.is_ok():
-       if hasattr(tx_result.result_data, "to_json"):
-           print(tx_result.result_data.to_json(indent=2))
-       else:
-           print(tx_result.result_data)
-   else:
-       print(tx_result.result_string)
+Depositing into balance manager
+
+.. code:: py
+
+    deepbook_client.balance_manager.deposit_into_manager(
+        manager_key="MANAGER_1", 
+        coin_key="SUI", 
+        amount_to_deposit=1, 
+        tx=txn
+        )
+
+    # Execute the transaction
+    tx_result = handle_result(txn.execute(gas_budget="10000000"))
+    print(tx_result.to_json(indent=2))
