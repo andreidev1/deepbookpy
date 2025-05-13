@@ -5,6 +5,8 @@
 
 
 .. image:: deepbookpy.jpg
+   :height: 250px
+   :width: 400px
    :align: center
 
 
