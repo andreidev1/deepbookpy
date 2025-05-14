@@ -4,12 +4,11 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-  system_packages: false
-  jobs:
-    pre_install:
-      - pip install poetry
-    install:
-      - poetry install --with dev
+
+python:
+  install:
+    - method: poetry
+      with: dev
 
 sphinx:
-  configuration: docs/source/conf.py 
+  configuration: docs/sources/conf.py 
