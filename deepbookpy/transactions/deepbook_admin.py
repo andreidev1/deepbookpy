@@ -3,6 +3,7 @@ from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiBoolean
 from pysui.sui.sui_types.address import SuiAddress
 
 from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.utils.constants import CLOCK
 from deepbookpy.custom_types import CreatePoolAdminParams
 
 
@@ -229,6 +230,37 @@ class DeepBookAdminContract:
                 ObjectID(self.__admin_cap()),
             ],
             type_arguments=[stable_coin_type],
+        )
+
+        return tx
+    
+    def adjust_tick_size(self, pool_key: str, new_tick_size: int, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Adjust the tick size of a pool
+
+        :param pool_key: key to identify the pool
+        :param new_tick_size: new tick size value
+        :returns: SuiTransaction object
+        """
+
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        base_scalar = base_coin["scalar"]
+        quote_scalar = quote_coin["scalar"]
+
+        adjusted_tick_size = (new_tick_size * FLOAT_SCALAR * quote_scalar) / base_scalar
+
+        tx.move_call(
+            target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::adjust_tick_size_admin",
+            arguments=[
+                ObjectID(pool["address"]),
+                SuiU64(adjusted_tick_size),
+                ObjectID(self.__admin_cap()),
+                ObjectID(CLOCK)
+            ],
+            type_arguments=[base_coin["type"], quote_coin["type"]],
         )
 
         return tx
