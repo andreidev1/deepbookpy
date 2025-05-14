@@ -264,3 +264,37 @@ class DeepBookAdminContract:
         )
 
         return tx
+
+    def adjust_min_size(self, pool_key: str, new_lot_size: int, new_min_size: int, tx: SuiTransaction) -> SuiTransaction:
+        """
+        Adjust the lot size and min size of a pool
+
+        :param pool_key: key to identify the pool
+        :param new_lot_size: new lot size value
+        :param new_min_size: new min size value
+        :returns: SuiTransaction object
+        """
+
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        base_scalar = base_coin["scalar"]
+        quote_scalar = quote_coin["scalar"]
+
+        adjusted_lot_size = new_lot_size * base_scalar
+        adjusted_min_size = new_min_size * quote_scalar
+
+        tx.move_call(
+                target=f"{self.__config.DEEPBOOK_PACKAGE_ID}::pool::adjust_min_lot_size_admin",
+                arguments=[
+                    ObjectID(pool["address"]),
+                    SuiU64(adjusted_lot_size),
+                    SuiU64(adjusted_min_size),
+                    ObjectID(self.__admin_cap()),
+                    ObjectID(CLOCK)
+                ],
+                type_arguments=[base_coin["type"], quote_coin["type"]],
+            )
+
+        return tx
