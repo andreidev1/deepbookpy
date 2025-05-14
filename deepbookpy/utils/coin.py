@@ -31,6 +31,9 @@ class BalanceObject:
     balance: int
 
 
+def format_value(value: float):
+    return int(value) if value == int(value) else float(value)
+
 def wrap_coin_type(coin_type: str) -> str:
     """
     Util function to wrap coin type object
