@@ -15,7 +15,7 @@ import deepbookpy
 
 
 project = 'deepbookpy'
-copyright = '2023, Andrei'
+copyright = '2025, Andrei'
 author = 'Andrei'
 version = deepbookpy.version.__version__
 release = version
@@ -34,4 +34,3 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']

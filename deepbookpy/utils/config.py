@@ -1,13 +1,22 @@
 from deepbookpy.transactions.balance_manager import BalanceManagerContract
-from .constants import mainnet_coins, mainnet_pools, mainnet_package_ids, testnet_coins, testnet_pools, testnet_package_ids
+from .constants import (
+    mainnet_coins,
+    mainnet_pools,
+    mainnet_package_ids,
+    testnet_coins,
+    testnet_pools,
+    testnet_package_ids,
+)
 from deepbookpy.utils.normalizer import normalize_sui_address
 from dataclasses import dataclass
 
 FLOAT_SCALAR = 1000000000
-MAX_TIMESTAMP = 1844674407370955161 
-GAS_BUDGET = 0.5 * 500000000  
+MAX_TIMESTAMP = 1844674407370955161
+GAS_BUDGET = 0.5 * 500000000
 DEEP_SCALAR = 1000000
-POOL_CREATION_FEE = 500 * 1_000_000;  # 500 DEEP
+POOL_CREATION_FEE = 500 * 1_000_000
+# 500 DEEP
+
 
 @dataclass
 class DeepBookConfig:
@@ -62,4 +71,3 @@ class DeepBookConfig:
         if manager_key not in self.balance_managers:
             raise KeyError(f"Balance manager with key {manager_key} not found.")
         return self.balance_managers[manager_key]
-
