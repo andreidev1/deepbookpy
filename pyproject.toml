@@ -1,6 +1,6 @@
 [project]
 name = "deepbookpy"
-version = "0.6.0"
+version = "0.7.0"
 description = "Sui Deepbook Python SDK"
 authors = [{ name = "Andrei", email = "andreid.dev@gmail.com" }]
 readme = "README.md"
@@ -10,13 +10,16 @@ license = { text = "Apache-2.0" }
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pysui = "^0.82.0"
+pysui = "^0.83.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 flake8 = "^6.0.0"
 sphinx-rtd-theme = "^1.2.2"
 flaky = "^3.7.0"
+
+[tool.poetry.extras]
+docs = ["Sphinx", "sphinx-rtd-theme", "sphinx-sitemap", "sphinx-autodoc-typehints", "furo", "nbsphinx", "zope.dottedname", "sphinx-sitemap", "sphinx-rtd-theme"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

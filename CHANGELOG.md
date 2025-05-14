@@ -1,3 +1,12 @@
+## [0.7.0] - 2025-05-14
+
+### Added
+
+- Bump pysui to 0.83.0
+- Add support for adjusting tick size, min size and lot size
+- Add documentation
+
+
 ## [0.6.0] - 2025-04-28
 
 ### Added

@@ -1,12 +1,14 @@
 """DeepBook Python SDK"""
+import json
 import warnings
-from typing import Any, Dict, List
+from typing import List
 
 from canoser import BoolT, Uint64
 from pysui import SyncClient
 from pysui.sui.sui_txn import SyncTransaction
 
 from deepbookpy.utils.normalizer import normalize_sui_address
+from deepbookpy.utils.coin import format_value
 from deepbookpy.utils.config import DeepBookConfig, DEEP_SCALAR, FLOAT_SCALAR
 from deepbookpy.transactions.balance_manager import BalanceManagerContract
 from deepbookpy.transactions.deepbook_admin import DeepBookAdminContract
@@ -67,13 +69,13 @@ class DeepBookClient:
 
     def check_manager_balance(
         self, manager_key: str, coin_key: str
-    ) -> Dict[str, float]:
+    ) -> str:
         """
         Check the balance of a balance manager for a specific coin
 
         :param manager_key: key of the balance manager
         :param coin_key: key of the coin
-        :returns: a dictionary with coin type and balance.
+        :returns: JSON string object with coin type and balance.
         """
         tx = SyncTransaction(client=self.client)
 
@@ -86,7 +88,12 @@ class DeepBookClient:
         parsed_balance = Uint64.deserialize(bytes(result_bytes))
         adjusted_balance = parsed_balance / coin["scalar"]
 
-        return dict(coin_type=coin["type"], balance=adjusted_balance)
+        formatted_result = dict(
+            coin_type=coin["type"], 
+            balance=adjusted_balance
+            )
+
+        return json.dumps(formatted_result, indent=4)
 
     def whitelisted(self, pool_key: str) -> bool:
         """
@@ -107,13 +114,13 @@ class DeepBookClient:
 
     def get_quote_quantity_out(
         self, pool_key: str, base_quantity: int
-    ) -> Dict[str, float]:
+    ) -> str:
         """
         Get the quote quantity out for a given base quantity
 
         :param pool_key: key of the pool
         :param base_quantity: base quantity to convert
-        :returns: dictionary object with base quantity, base out, quote out, and deep required
+        :returns: JSON string object with base quantity, base out, quote out, and deep required
         """
         tx = SyncTransaction(client=self.client)
 
@@ -128,22 +135,24 @@ class DeepBookClient:
         quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
         deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
 
-        return dict(
+        formatted_result = dict(
             base_quantity=base_quantity,
-            base_out=float(base_out / base_scalar),
-            quote_out=float(quote_out / quote_scalar),
-            deep_required=float(deep_required / DEEP_SCALAR),
+            base_out=format_value(base_out / base_scalar),
+            quote_out=format_value(quote_out / quote_scalar),
+            deep_required=format_value(deep_required / DEEP_SCALAR),
         )
 
+        return json.dumps(formatted_result, indent=4)
+    
     def get_base_quantity_out(
         self, pool_key: str, quote_quantity: int
-    ) -> Dict[str, float]:
+    ) -> str:
         """
         Get the base quantity out for a given quote quantity
 
         :param pool_key: key of the pool
         :param quote_quantity: quote quantity to convert
-        :returns: a dictionary object with quote quantity, base out, quote out, and deep required
+        :returns: JSON string object with quote quantity, base out, quote out, and deep required
         """
         tx = SyncTransaction(client=self.client)
 
@@ -158,23 +167,25 @@ class DeepBookClient:
         quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
         deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
 
-        return dict(
+        formatted_result = dict(
             quote_quantity=quote_quantity,
-            base_out=float(base_out / base_scalar),
-            quote_out=float(quote_out / quote_scalar),
-            deep_required=float(deep_required / DEEP_SCALAR),
+            base_out=format_value(base_out / base_scalar),
+            quote_out=format_value(quote_out / quote_scalar),
+            deep_required=format_value(deep_required / DEEP_SCALAR),
         )
+
+        return json.dumps(formatted_result, indent=4)
 
     def get_quantity_out(
         self, pool_key: str, base_quantity: int, quote_quantity: int
-    ) -> Dict[str, float]:
+    ) -> str:
         """
         Get the output quantities for given base and quote quantities. Only one quantity can be non-zero
 
         :param pool_key: key of the pool
         :param base_quantity: base quantity to convert
         :param quote_quantity: quote quantity to convert
-        :returns: a dictionary object with base quantity, quote quantity, base out, quote out, and deep required
+        :returns: JSON string object with base quantity, quote quantity, base out, quote out, and deep required
         """
         tx = SyncTransaction(client=self.client)
 
@@ -189,13 +200,15 @@ class DeepBookClient:
         quote_out = Uint64.deserialize(result[0]["returnValues"][1][0])
         deep_required = Uint64.deserialize(result[0]["returnValues"][2][0])
 
-        return dict(
+        formatted_result = dict(
             base_quantity=base_quantity,
             quote_quantity=quote_quantity,
-            base_out=float(base_out / base_scalar),
-            quote_out=float(quote_out / quote_scalar),
-            deep_required=float(deep_required / DEEP_SCALAR),
+            base_out=format_value(base_out / base_scalar),
+            quote_out=format_value(quote_out / quote_scalar),
+            deep_required=format_value(deep_required / DEEP_SCALAR),
         )
+
+        return json.dumps(formatted_result, indent=4)
 
     def account_open_orders(self, pool_key: str, manager_key: str) -> List[int]:
         """
@@ -216,13 +229,13 @@ class DeepBookClient:
 
         return deserialized_data.__dict__["constants"]
 
-    def get_order(self, pool_key: str, order_id: str) -> List[Any]:
+    def get_order(self, pool_key: str, order_id: str) -> str:
         """
         Get the order information for a specific order in a pool
 
         :param pool_key: key to identify pool
         :param order_id: Order ID
-        :returns: object containing the order information
+        :returns: JSON string object containing the order information
         """
         tx = SyncTransaction(client=self.client)
 
@@ -232,8 +245,10 @@ class DeepBookClient:
 
         try:
             parsed_bytes = result[0]["returnValues"][0][0]
-            order_info = Order.deserialize(bytes(parsed_bytes))
-            return order_info
+            order_info = Order.deserialize(bytes(parsed_bytes)).__dict__
+            order_info["balance_manager_id"] = order_info["balance_manager_id"].to_sui_address().__dict__["address"]
+            order_info["order_deep_price"] = order_info["order_deep_price"].__dict__
+            return json.dumps(order_info, indent=4)
         except:
             return None
 
@@ -243,7 +258,7 @@ class DeepBookClient:
 
         :param pool_key: key to identify pool
         :param order_ids: list of order IDs to retrieve information for
-        :returns:
+        :returns: a list with order information.
         """
         tx = SyncTransaction(client=self.client)
 
@@ -283,7 +298,7 @@ class DeepBookClient:
 
     def get_level2_range(
         self, pool_key: str, price_low: int, price_high: int, is_bid: bool
-    ):
+    ) -> str:
         """
         Get level 2 order book specifying range of price
 
@@ -291,7 +306,7 @@ class DeepBookClient:
         :param price_low: lower bound of the price range
         :param price_high: upper bound of the price range
         :param is_bid: whether to get bid or ask orders
-        :returns:
+        :returns: a JSON string object with arrays of prices and quantities
         """
         tx = SyncTransaction(client=self.client)
 
@@ -308,7 +323,7 @@ class DeepBookClient:
         quantities = result[0]["returnValues"][1][0]
         parsed_quantities = RangeInput.deserialize(quantities).__dict__
 
-        return dict(
+        formatted_result = dict(
             prices=[
                 round(
                     (float(price) / FLOAT_SCALAR / quote_coin["scalar"])
@@ -322,14 +337,16 @@ class DeepBookClient:
                 for quantity in parsed_quantities["range"]
             ],
         )
+    
+        return json.dumps(formatted_result, indent=4)
 
-    def get_level2_ticks_from_mid(self, pool_key: str, ticks: int):
+    def get_level2_ticks_from_mid(self, pool_key: str, ticks: int) -> str:
         """
         Get level 2 order book ticks from mid-price for a pool
 
         :param pool_key: key to identify the pool
         :param ticks: lower bound of the price ranger
-        :returns:
+        :returns: JSON string object with arrays of prices and quantities
         """
         tx = SyncTransaction(client=self.client)
 
@@ -353,7 +370,7 @@ class DeepBookClient:
         ask_quantities = result[0]["returnValues"][3][0]
         parsed_ask_quantities = RangeInput.deserialize(ask_quantities).__dict__
 
-        return dict(
+        formatted_result = dict(
             bid_prices=[
                 round(
                     (float(price) / FLOAT_SCALAR / quote_coin["scalar"])
@@ -379,14 +396,16 @@ class DeepBookClient:
                 for quantity in parsed_ask_quantities["range"]
             ],
         )
+    
+        return json.dumps(formatted_result, indent=4)
 
-    def account(self, pool_key: str, manager_key: str):
+    def account(self, pool_key: str, manager_key: str) -> str:
         """
         Get the account information for a given pool and balance manager
 
         :param pool_key: key of the pool
         :param manager_key: key of the BalanceManager
-        :returns:
+        :returns: JSON string object containing the account information
         """
         tx = SyncTransaction(client=self.client)
         pool = self._config.get_pool(pool_key)
@@ -401,39 +420,41 @@ class DeepBookClient:
 
         account = Account.deserialize(final_results)
 
-        return dict(
+        formatted_result = dict(
             epoch=account.epoch,
             open_orders=account.open_orders.__dict__,
-            taker_volume=account.taker_volume / base_scalar,
-            maker_volume=account.maker_volume / base_scalar,
-            active_stake=account.active_stake / DEEP_SCALAR,
-            inactive_stake=account.inactive_stake / DEEP_SCALAR,
+            taker_volume=format_value(account.taker_volume / base_scalar),
+            maker_volume=format_value(account.maker_volume / base_scalar),
+            active_stake=format_value(account.active_stake / DEEP_SCALAR),
+            inactive_stake=format_value(account.inactive_stake / DEEP_SCALAR),
             created_proposal=account.created_proposal,
             voted_proposal=dict(account.voted_proposal.__dict__)["value"],
             unclaimed_rebates=dict(
-                base=account.unclaimed_rebates.base / base_scalar,
-                quote=account.unclaimed_rebates.quote / quote_scalar,
-                deep=account.unclaimed_rebates.deep / DEEP_SCALAR,
+                base=format_value(account.unclaimed_rebates.base / base_scalar),
+                quote=format_value(account.unclaimed_rebates.quote / quote_scalar),
+                deep=format_value(account.unclaimed_rebates.deep / DEEP_SCALAR),
             ),
             settled_balances=dict(
-                base=account.settled_balances.base / base_scalar,
-                quote=account.settled_balances.quote / quote_scalar,
-                deep=account.settled_balances.deep / DEEP_SCALAR,
+                base=format_value(account.settled_balances.base / base_scalar),
+                quote=format_value(account.settled_balances.quote / quote_scalar),
+                deep=format_value(account.settled_balances.deep / DEEP_SCALAR),
             ),
             owed_balances=dict(
-                base=account.owed_balances.base / base_scalar,
-                quote=account.owed_balances.quote / quote_scalar,
-                deep=account.owed_balances.deep / DEEP_SCALAR,
+                base=format_value(account.owed_balances.base / base_scalar),
+                quote=format_value(account.owed_balances.quote / quote_scalar),
+                deep=format_value(account.owed_balances.deep / DEEP_SCALAR),
             ),
         )
 
-    def get_order_normalized(self, pool_key: str, order_id: str) -> Dict[str, Any]:
+        return json.dumps(formatted_result, indent=4)
+
+    def get_order_normalized(self, pool_key: str, order_id: str) -> str:
         """
         Get the order information for a specific order in a pool, with normalized price
 
         :param pool_key: key to identify pool
         :param order_id: Order ID
-        :returns: a dictionary object containing the order information with normalized price
+        :returns: JSON string object containing the order information with normalized price
         """
 
         tx = SyncTransaction(client=self.client)
@@ -447,6 +468,8 @@ class DeepBookClient:
         order = Order.deserialize(bytearray(parsed_bytes))
         order_info = order.__dict__
 
+        order_info["balance_manager_id"] = order_info["balance_manager_id"].to_sui_address().__dict__["address"]
+
         if not order_info:
             return None
 
@@ -456,23 +479,27 @@ class DeepBookClient:
         decoded = self.decode_order_id(int(order_info["order_id"]))
         is_bid = decoded["is_bid"]
         raw_price = decoded["price"]
-        normalized_price = (
+
+        normalized_price = format_value(
             (raw_price * base_coin["scalar"]) / quote_coin["scalar"] / FLOAT_SCALAR
         )
 
-        order_info["quantity"] = float(order_info["quantity"]) / base_coin["scalar"]
-        order_info["filled_quantity"] = (
+        order_info["quantity"] = str(format_value(order_info["quantity"]) / base_coin["scalar"])
+        order_info["filled_quantity"] = str(format_value(
             float(order_info["filled_quantity"]) / base_coin["scalar"]
-        )
-        order_info["order_deep_price"].__dict__["deep_per_asset"] = (
+        ))
+
+        order_info["order_deep_price"].__dict__["deep_per_asset"] = str(format_value(
             float(order_info["order_deep_price"].__dict__["deep_per_asset"])
             / DEEP_SCALAR
-        )
+        ))
+
+        order_info["order_deep_price"] = order_info["order_deep_price"].__dict__
         order_info["is_bid"] = is_bid
-        order_info["normalized"] = normalized_price
+        order_info["normalized_price"] = normalized_price
 
-        return order_info
-
+        return json.dumps(order_info, indent=4)
+    
     def decode_order_id(self, encoded_order_id: int) -> dict:
         """
         Decode the order ID to get bid/ask status, price, and orderId
@@ -486,12 +513,12 @@ class DeepBookClient:
 
         return dict(is_bid=is_bid, price=price, order_id=order_id)
 
-    def vault_balances(self, pool_key: str) -> Dict[str, float]:
+    def vault_balances(self, pool_key: str) -> str:
         """
         Get the vault balances for a pool
 
         :param pool_key: key to identify the pool
-        :returns: a dictionary object with base, quote, and deep balances in the vault
+        :returns: JSON string object with base, quote, and deep balances in the vault
         """
         tx = SyncTransaction(client=self.client)
 
@@ -507,11 +534,13 @@ class DeepBookClient:
         quote_in_vault = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
         deep_in_vault = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
 
-        return dict(
-            base=float(base_in_vault / base_coin_scalar),
-            quote=float(quote_in_vault / quote_coin_scalar),
-            deep=float(deep_in_vault),
+        formatted_result = dict(
+            base=format_value(base_in_vault / base_coin_scalar),
+            quote=format_value(quote_in_vault / quote_coin_scalar),
+            deep=format_value(deep_in_vault),
         )
+        
+        return json.dumps(formatted_result, indent=4)
 
     def get_pool_id_by_assets(self, base_type: str, quote_type: str) -> str:
         """
@@ -549,6 +578,7 @@ class DeepBookClient:
         parsed_bytes = bytes(result[0]["returnValues"][0][0])
 
         parsed_mid_price = Uint64.deserialize(parsed_bytes)
+
         adjusted_mid_price = (
             (parsed_mid_price * base_coin["scalar"])
             / quote_coin["scalar"]
@@ -557,12 +587,12 @@ class DeepBookClient:
 
         return adjusted_mid_price
 
-    def pool_trade_params(self, pool_key: str) -> Dict[str, float]:
+    def pool_trade_params(self, pool_key: str) -> str:
         """
         Get the trade parameters for a given pool, including taker fee, maker fee, and stake required
 
         :param pool_key: key of the pool
-        :returns: a dictionary with pool trade results
+        :returns: JSON string object with pool trade results
         """
         tx = SyncTransaction(client=self.client)
 
@@ -574,18 +604,20 @@ class DeepBookClient:
         maker_fee = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
         stake_required = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
 
-        return dict(
-            taker_fee=taker_fee / FLOAT_SCALAR,
-            maker_fee=maker_fee / FLOAT_SCALAR,
-            stake_required=stake_required / DEEP_SCALAR,
-        )
+        formatted_result = dict(
+                taker_fee=format_value(taker_fee / FLOAT_SCALAR),
+                maker_fee=format_value(maker_fee / FLOAT_SCALAR),
+                stake_required=format_value(stake_required / DEEP_SCALAR),
+            )
 
-    def pool_book_params(self, pool_key: str) -> Dict[str, float]:
+        return json.dumps(formatted_result, indent=4)
+
+    def pool_book_params(self, pool_key: str) -> str:
         """
         Get the trade parameters for a given pool, including tick size, lot size, and min size.
 
         :param pool_key: key of the pool
-        :returns: a dictionary with pool book results
+        :returns: a JSON string object with pool book results
         """
         tx = SyncTransaction(client=self.client)
         pool = self._config.get_pool(pool_key)
@@ -599,21 +631,23 @@ class DeepBookClient:
         lot_size = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
         min_size = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
 
-        return dict(
-            tick_size=(tick_size * base_scalar) / quote_scalar / FLOAT_SCALAR,
-            lot_size=lot_size / base_scalar,
-            min_size=min_size / base_scalar,
+        formatted_result = dict(
+            tick_size=format_value((tick_size * base_scalar) / quote_scalar / FLOAT_SCALAR),
+            lot_size=format_value(lot_size / base_scalar),
+            min_size=format_value(min_size / base_scalar),
         )
+
+        return json.dumps(formatted_result, indent=4)
 
     def locked_balance(
         self, pool_key: str, balance_manager_key: str
-    ) -> Dict[str, float]:
+    ) -> str:
         """
         Get the locked balances for a pool and balance manager
 
         :param pool_key: key of the pool
         :param balance_manager_key: key of the BalanceManager
-        :returns: a dictionary object with base, quote, and deep locked for the balance manager in the pool
+        :returns: JSON string object with base, quote, and deep locked for the balance manager in the pool
         """
         tx = SyncTransaction(client=self.client)
         pool = self._config.get_pool(pool_key)
@@ -628,18 +662,20 @@ class DeepBookClient:
         quote_locked = Uint64.deserialize(bytes(result[0]["returnValues"][1][0]))
         deep_locked = Uint64.deserialize(bytes(result[0]["returnValues"][2][0]))
 
-        return dict(
-            base=base_locked / base_scalar,
-            quote=quote_locked / quote_scalar,
-            deep=deep_locked / DEEP_SCALAR,
+        formatted_result = dict(
+            base=format_value(base_locked / base_scalar),
+            quote=format_value(quote_locked / quote_scalar),
+            deep=format_value(deep_locked / DEEP_SCALAR),
         )
 
-    def get_pool_deep_price(self, pool_key: str) -> Dict[str, float]:
+        return json.dumps(formatted_result, indent=4)
+
+    def get_pool_deep_price(self, pool_key: str) -> str:
         """
         Get the DEEP price conversion for a pool
 
         :param pool_key: key of the pool
-        :returns: a dictionary with deep price conversion
+        :returns: JSON string object with deep price conversion
         """
         tx = SyncTransaction(client=self.client)
         pool = self._config.get_pool(pool_key)
@@ -657,20 +693,20 @@ class DeepBookClient:
         )
 
         if pool_deep_price.asset_is_base:
-            return dict(
+            return json.dumps(dict(
                 asset_is_base=pool_deep_price.asset_is_base,
                 deep_per_base=(
                     (pool_deep_price.deep_per_asset / FLOAT_SCALAR)
                     * base_coin["scalar"]
                 )
                 / deep_coin["scalar"],
-            )
+            ), indent=4)
         else:
-            return dict(
+            return json.dumps(dict(
                 asset_is_base=pool_deep_price.asset_is_base,
                 deep_per_quote=(
                     (pool_deep_price.deep_per_asset / FLOAT_SCALAR)
                     * quote_coin["scalar"]
                 )
                 / deep_coin["scalar"],
-            )
+            ), indent=4)
