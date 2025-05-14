@@ -1,19 +1,18 @@
 version: 2
 
+# Set the version of Python and sphinx tools
 build:
   os: ubuntu-20.04
   tools:
     python: "3.10"
+
   jobs:
     post_create_environment:
-      - pip install poetry
-      - poetry install
-      - poetry run pip install sphinx sphinx-rtd-theme
+      - pip install sphinx-rtd-theme
+    pre_build:
+      - sphinx-apidoc -o docs/source deepbookpy/
 
+# Build documentation in the docs/ directory with Sphinx
 sphinx:
-  configuration: doc/source/conf.py
+   configuration: docs/source/conf.py
 
-python:
-  install:
-    - method: poetry
-      path: .
