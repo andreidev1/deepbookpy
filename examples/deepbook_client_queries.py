@@ -17,7 +17,7 @@ from deepbookpy.utils.config import DeepBookConfig
 
 load_dotenv()
 
-private_key = os.environ("PRIVATE_KEY")
+private_key = os.getenv("PRIVATE_KEY")
 
 if __name__ == "__main__":
 
