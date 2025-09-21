@@ -63,7 +63,7 @@ class PlaceLimitOrderParams:
     expiration: Optional[Union[int, float]] = None
     order_type: Optional[int] = None
     self_matching_option: Optional[SelfMatchingOptions] = None
-    pay_with_deep: Optional[bool] = None
+    pay_with_deep: Optional[bool] = True
 
 
 @dataclass
@@ -74,7 +74,7 @@ class PlaceMarketOrderParams:
     quantity: float
     is_bid: bool
     self_matching_option: Optional[SelfMatchingOptions] = None
-    pay_with_deep: Optional[bool] = None
+    pay_with_deep: Optional[bool] = True
 
 
 @dataclass
