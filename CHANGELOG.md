@@ -1,3 +1,13 @@
+## [0.7.1] - 2025-09-23
+
+### Added
+
+- Examples
+
+### Fixed
+
+- Place limit order
+
 ## [0.7.0] - 2025-05-14
 
 ### Added
