@@ -47,7 +47,7 @@ class DeepBookContract:
         expiration = params.expiration or DEFAULT_EXPIRATION_TIMESTAMP
         order_type = params.order_type or 0
         self_matching_option = params.self_matching_option or 0
-        pay_with_deep = True
+        pay_with_deep = params.pay_with_deep
 
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
@@ -98,7 +98,7 @@ class DeepBookContract:
         quantity = params.quantity
         is_bid = params.is_bid
         self_matching_option = params.self_matching_option or 0
-        pay_with_deep = True
+        pay_with_deep = params.pay_with_deep
 
         pool = self.__config.get_pool(pool_key)
         balance_manager = self.__config.get_balance_manager(balance_manager_key)
