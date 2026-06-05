@@ -78,6 +78,27 @@ class PlaceMarketOrderParams:
 
 
 @dataclass
+class PendingLimitOrderParams:
+    client_order_id: str
+    price: float
+    quantity: float
+    is_bid: bool
+    order_type: Optional[OrderType] = None
+    self_matching_option: Optional[SelfMatchingOptions] = None
+    pay_with_deep: Optional[bool] = None
+    expire_timestamp: Optional[Union[int, float]] = None
+
+
+@dataclass
+class PendingMarketOrderParams:
+    client_order_id: str
+    quantity: float
+    is_bid: bool
+    self_matching_option: Optional[SelfMatchingOptions] = None
+    pay_with_deep: Optional[bool] = None
+
+
+@dataclass
 class SwapParams:
     pool_key: str
     amount: float
