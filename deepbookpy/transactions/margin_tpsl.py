@@ -1,7 +1,9 @@
 from pysui.sui.sui_txn.sync_transaction import SuiTransaction
-from pysui.sui.sui_types.scalars import ObjectID, SuiU64
+from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8
 
-from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR
+from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR, MAX_TIMESTAMP
+from deepbookpy.utils.conversion import convert_price, convert_quantity
+from deepbookpy.custom_types import PendingLimitOrderParams
 
 class MarginTPSLContract:
     """
@@ -54,7 +56,55 @@ class MarginTPSLContract:
 
         return tx
 
+    def new_pending_limit_order(
+        self,
+        params: PendingLimitOrderParams,
+        pool_key: str,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Create a new pending limit order for use in conditional orders
 
+        :param pool_key: The key to identify the pool
+        :param params: Parameters for the pending limit order
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        client_order_id = params.client_order_id
+        order_type = params.order_type or 0
+        self_matching_option = params.self_matching_option or 0
+        price = params.price
+        quantity = params.quantity
+        is_bid = params.is_bid
+        pay_with_deep = params.pay_with_deep
+        expire_timestamp = params.expire_timestamp or MAX_TIMESTAMP
+
+        pool = self.__config.get_pool(pool_key)
+
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        input_price = convert_price(
+            price, FLOAT_SCALAR, quote_coin["scalar"], base_coin["scalar"]
+        )
+        input_quantity = convert_quantity(quantity, base_coin["scalar"])
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::tpsl::new_pending_limit_order",
+            arguments=[
+                SuiU64(client_order_id),
+                SuiU8(order_type),
+                SuiU8(self_matching_option),
+                SuiU64(input_price),
+                SuiU64(input_quantity),
+                is_bid,
+                pay_with_deep,
+                SuiU64(expire_timestamp),
+            ],
+        )
+
+        return tx
 
     # Read-only methods
     def conditional_order_ids(
