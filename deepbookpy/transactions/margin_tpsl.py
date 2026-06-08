@@ -200,7 +200,67 @@ class MarginTPSLContract:
         )
 
         return tx
-    
+  
+    def cancel_all_conditional_orders(
+        self,
+        margin_manager_key: str,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Cancel all conditional orders for a margin manager
+
+        :param margin_manager_key: The key to identify the margin manager
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        manager = self.__config.get_margin_manager(margin_manager_key)
+        pool = self.__config.get_pool(manager["pool_key"])
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::margin_manager::cancel_all_conditional_orders",
+            arguments=[
+                ObjectID(manager["address"]),
+                CLOCK,
+            ],
+            type_arguments=[base_coin["type"], quote_coin["type"]],
+        )
+
+        return tx
+
+    def cancel_conditional_order(
+        self,
+        margin_manager_key: str,
+        conditional_order_id: int,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Cancel a specific conditional order
+
+        :param margin_manager_key: The key to identify the margin manager
+        :param conditional_order_id: The ID of the conditional order to cancel
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        manager = self.__config.get_margin_manager(margin_manager_key)
+        pool = self.__config.get_pool(manager["pool_key"])
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::margin_manager::cancel_conditional_order",
+            arguments=[
+                ObjectID(manager["address"]),
+                SuiU64(conditional_order_id),
+                CLOCK,
+            ],
+            type_arguments=[base_coin["type"], quote_coin["type"]],
+        )
+
+        return tx  
 
     # Read-only methods
     def conditional_order_ids(
