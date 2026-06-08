@@ -1,4 +1,4 @@
-from typing import TypedDict, Dict
+from typing import TypedDict, Dict, Optional
 from dataclasses import dataclass
 from deepbookpy.custom_types import Coin, Pool
 from deepbookpy.utils.normalizer import normalize_sui_object_id
@@ -12,12 +12,13 @@ DEFAULT_EXPIRATION_TIMESTAMP = 1844674407370955161
 
 @dataclass
 class DeepbookPackageIds(TypedDict):
-    DEEPBOOK_PACKAGE_ID: str
-    REGISTRY_ID: str
+    DEEPBOOK_PACKAGE_ID: Optional[str]
+    REGISTRY_ID: Optional[str]
     DEEP_TREASURY_ID: str
-    MARGIN_PACKAGE_ID: str
-    MARGIN_REGISTRY_ID: str
-    LIQUIDATION_PACKAGE_ID: str
+    MARGIN_PACKAGE_ID: Optional[str]
+    MARGIN_V1: Optional[str]
+    MARGIN_REGISTRY_ID: Optional[str]
+    LIQUIDATION_PACKAGE_ID: Optional[str]
 
 
 testnet_package_ids: DeepbookPackageIds = {
@@ -25,26 +26,31 @@ testnet_package_ids: DeepbookPackageIds = {
     "REGISTRY_ID": "0x7c256edbda983a2cd6f946655f4bf3f00a41043993781f8674a7046e8c0e11d1",
     "DEEP_TREASURY_ID": "0x69fffdae0075f8f71f4fa793549c11079266910e8905169845af1f5d00e09dcb",
     "MARGIN_PACKAGE_ID": "0xd6a42f4df4db73d68cbeb52be66698d2fe6a9464f45ad113ca52b0c6ebd918b6",
+    "MARGIN_V1": "0xd6a42f4df4db73d68cbeb52be66698d2fe6a9464f45ad113ca52b0c6ebd918b6",
     "MARGIN_REGISTRY_ID": "0x48d7640dfae2c6e9ceeada197a7a1643984b5a24c55a0c6c023dac77e0339f75",
     "LIQUIDATION_PACKAGE_ID": "0x8d69c3ef3ef580e5bf87b933ce28de19a5d0323588d1a44b9c60b4001741aa24",
 }
 
 mainnet_package_ids: DeepbookPackageIds = {
-    "DEEPBOOK_PACKAGE_ID": "0xf48222c4e057fa468baf136bff8e12504209d43850c5778f76159292a96f621e",
+    "DEEPBOOK_PACKAGE_ID": "0x0e735f8c93a95722efd73521aca7a7652c0bb71ed1daf41b26dfd7d1ff71f748",
     "REGISTRY_ID": "0xaf16199a2dff736e9f07a845f23c5da6df6f756eddb631aed9d24a93efc4549d",
     "DEEP_TREASURY_ID": "0x032abf8948dda67a271bcc18e776dbbcfb0d58c8d288a700ff0d5521e57a1ffe",
-    "MARGIN_PACKAGE_ID": "0xfbd322126f1452fd4c89aedbaeb9fd0c44df9b5cedbe70d76bf80dc086031377",
+    "MARGIN_PACKAGE_ID": "0x124bb3d8105d6d301c0d40feaa54d65df6b301e4d8ddd5eb8475b0f8a18cff2e",
+    "MARGIN_V1": "0x97d9473771b01f77b0940c589484184b49f6444627ec121314fae6a6d36fb86b",
     "MARGIN_REGISTRY_ID": "0x0e40998b359a9ccbab22a98ed21bd4346abf19158bc7980c8291908086b3a742",
-    "LIQUIDATION_PACKAGE_ID": "0x55718c06706bee34c9f3c39f662f10be354a4dcc719699ad72091dc343b641b8",
+    "LIQUIDATION_PACKAGE_ID": "0xf17bff1bf21e9587acc5708714e520aa967f82f256f626938a33c4109b08adb9",
 }
 
+# ---------------------------------------------------------------------------
+# Coins
+# ---------------------------------------------------------------------------
 
 testnet_coins: Dict[str, Coin] = {
     "DEEP": {
         "address": "0x36dbef866a1d62bf7328989a10fb2f07d769f4ee587c0de4a0a256e57e0a58a8",
         "type": "0x36dbef866a1d62bf7328989a10fb2f07d769f4ee587c0de4a0a256e57e0a58a8::deep::DEEP",
         "scalar": 1000000,
-        "feed": "0x99137a18354efa7fb6840889d059fdb04c46a6ce21be97ab60d9ad93e91ac758",  # DEEP uses HFT feed on testnet
+        "feed": "0x99137a18354efa7fb6840889d059fdb04c46a6ce21be97ab60d9ad93e91ac758",
         "currency_id": "0xbf1b77e244f649c736a44898585cc8ac939fbb0bbdf1d8d2a183978cc312e613",
         "price_info_object_id": "0x3d52fffa2cd9e54b39bb36d282bdda560b15b8b4fdf4766a3c58499ef172bafc",
     },
@@ -213,6 +219,9 @@ mainnet_coins: Dict[str, Coin] = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Pools
+# ---------------------------------------------------------------------------
 
 testnet_pools = {
     "DEEP_SUI": {
@@ -375,6 +384,9 @@ mainnet_pools = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Margin Pools
+# ---------------------------------------------------------------------------
 
 testnet_margin_pools = {
     "SUI": {
@@ -426,6 +438,9 @@ mainnet_margin_pools = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Pyth Configs
+# ---------------------------------------------------------------------------
 
 testnet_pyth_configs = {
     "pyth_state_id": "0x243759059f4c3111179da5878c12f68d612c21a8d54d85edc86164bb18be1c7c",
