@@ -99,6 +99,15 @@ class PendingMarketOrderParams:
 
 
 @dataclass
+class AddConditionalOrderParams:
+    margin_manager_key: str
+    conditional_order_id: str
+    trigger_below_price: bool
+    trigger_price: int | float
+    pending_order: Union[PendingLimitOrderParams, PendingMarketOrderParams]
+
+
+@dataclass
 class SwapParams:
     pool_key: str
     amount: float
@@ -117,3 +126,8 @@ class CreatePermissionlessPoolParams:
     lot_size: int
     min_size: int
     deep_coin: Optional["TransactionObjectArgument"] = None
+
+@dataclass
+class MarginManagers:
+    address: str
+    pool_key: str

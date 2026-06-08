@@ -26,12 +26,14 @@ class DeepBookConfig:
         address,
         admin_cap=None,
         balance_managers=None,
+        margin_managers=None,
         coins=None,
         pools=None,
     ):
         self._coins = None
         self._pools = None
         self.balance_managers = balance_managers or {}
+        self.margin_managers = margin_managers or {}
         self.address = self.normalize_sui_address(address)
         self.admin_cap = admin_cap
 
@@ -41,12 +43,17 @@ class DeepBookConfig:
             self.DEEPBOOK_PACKAGE_ID = mainnet_package_ids["DEEPBOOK_PACKAGE_ID"]
             self.REGISTRY_ID = mainnet_package_ids["REGISTRY_ID"]
             self.DEEP_TREASURY_ID = mainnet_package_ids["DEEP_TREASURY_ID"]
+            self.MARGIN_PACKAGE_ID = mainnet_package_ids["MARGIN_PACKAGE_ID"]
+            self.LIQUIDATION_PACKAGE_ID = mainnet_package_ids["LIQUIDATION_PACKAGE_ID"]
+            self.MARGIN_1 = mainnet_package_ids["MARGIN_1"]
         else:
             self._coins = coins or testnet_coins
             self._pools = pools or testnet_pools
             self.DEEPBOOK_PACKAGE_ID = testnet_package_ids["DEEPBOOK_PACKAGE_ID"]
             self.REGISTRY_ID = testnet_package_ids["REGISTRY_ID"]
             self.DEEP_TREASURY_ID = testnet_package_ids["DEEP_TREASURY_ID"]
+            self.MARGIN_PACKAGE_ID = testnet_package_ids["MARGIN_PACKAGE_ID"]
+            self.LIQUIDATION_PACKAGE_ID = testnet_package_ids["LIQUIDATION_PACKAGE_ID"]
 
         self.balance_manager = BalanceManagerContract(self)
 
@@ -71,3 +78,13 @@ class DeepBookConfig:
         if manager_key not in self.balance_managers:
             raise KeyError(f"Balance manager with key {manager_key} not found.")
         return self.balance_managers[manager_key]
+
+    def get_margin_manager(self, manager_key: str):
+        """
+        Get the margin manager by key
+
+        :param manager_key: Key of the margin manager
+        """
+        if manager_key not in self.__margin_managers:
+            raise KeyError(f"Margin manager with key {manager_key} not found.")
+        return self.margin_managers[manager_key]

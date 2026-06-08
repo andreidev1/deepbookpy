@@ -2,8 +2,9 @@ from pysui.sui.sui_txn.sync_transaction import SuiTransaction
 from pysui.sui.sui_types.scalars import ObjectID, SuiU64, SuiU8
 
 from deepbookpy.utils.config import DeepBookConfig, FLOAT_SCALAR, MAX_TIMESTAMP
+from deepbookpy.utils.constants import CLOCK
 from deepbookpy.utils.conversion import convert_price, convert_quantity
-from deepbookpy.custom_types import PendingLimitOrderParams
+from deepbookpy.custom_types import PendingLimitOrderParams, PendingMarketOrderParams, AddConditionalOrderParams
 
 class MarginTPSLContract:
     """
@@ -105,6 +106,101 @@ class MarginTPSLContract:
         )
 
         return tx
+
+    def new_pending_market_order(
+        self,
+        params: PendingMarketOrderParams,
+        pool_key: str,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Create a new pending market order for use in conditional orders
+
+        :param params: Parameters for the pending market order
+        :param pool_key: The key to identify the pool
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        client_order_id = params.client_order_id
+        self_matching_option = params.self_matching_option
+        quantity = params.quantity
+        is_bid = params.is_bid
+        pay_with_deep = params.pay_with_deep
+
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        input_quantity = convert_quantity(quantity, base_coin["scalar"])
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::tpsl::new_pending_market_order",
+            arguments=[
+                SuiU64(client_order_id),
+                SuiU8(self_matching_option),
+                SuiU64(input_quantity),
+                is_bid,
+                pay_with_deep,
+            ],
+        )
+
+        return tx
+
+    def add_conditional_order(
+        self,
+        params: AddConditionalOrderParams,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Add a conditional order (take profit or stop loss)
+
+        :param params: Parameters for adding the conditional order
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        margin_manager_key = params.margin_manager_key
+        conditional_order_id = params.conditional_order_id
+        trigger_below_price = params.trigger_below_price
+        trigger_price = params.trigger_price
+        pending_order = params.pending_order
+
+        manager = self.__config.get_margin_manager(margin_manager_key)
+        pool = self.__config.get_pool(manager["pool_key"])
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+
+        condition = self.new_condition(
+            pool_key=manager["pool_key"],
+            trigger_below_price=trigger_below_price,
+            trigger_price=trigger_price,
+            tx=tx,
+        )
+
+        is_limit_order = isinstance(pending_order, PendingLimitOrderParams)
+        pending = (
+            self.new_pending_limit_order(params=pending_order, pool_key=manager["pool_key"], tx=tx)
+            if is_limit_order
+            else self.new_pending_market_order(params=pending_order, pool_key=manager["pool_key"], tx=tx)
+        )
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::margin_manager::add_conditional_order",
+            arguments=[
+                ObjectID(manager["address"]),
+                ObjectID(pool["address"]),
+                ObjectID(base_coin["price_info_object_id"]),
+                ObjectID(quote_coin["price_info_object_id"]),
+                ObjectID(self.__config.MARGIN_REGISTRY_ID),
+                SuiU64(conditional_order_id),
+                condition,
+                pending,
+                ObjectID(CLOCK)
+            ],
+            type_arguments=[base_coin["type"], quote_coin["type"]],
+        )
+
+        return tx
+    
 
     # Read-only methods
     def conditional_order_ids(
