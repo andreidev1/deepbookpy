@@ -44,8 +44,9 @@ class DeepBookConfig:
             self.REGISTRY_ID = mainnet_package_ids["REGISTRY_ID"]
             self.DEEP_TREASURY_ID = mainnet_package_ids["DEEP_TREASURY_ID"]
             self.MARGIN_PACKAGE_ID = mainnet_package_ids["MARGIN_PACKAGE_ID"]
-            self.LIQUIDATION_PACKAGE_ID = mainnet_package_ids["LIQUIDATION_PACKAGE_ID"]
             self.MARGIN_1 = mainnet_package_ids["MARGIN_1"]
+            self.MARGIN_REGISTRY_ID = mainnet_package_ids["MARGIN_REGISTRY_ID"]
+            self.LIQUIDATION_PACKAGE_ID = mainnet_package_ids["LIQUIDATION_PACKAGE_ID"]
         else:
             self._coins = coins or testnet_coins
             self._pools = pools or testnet_pools
@@ -53,6 +54,8 @@ class DeepBookConfig:
             self.REGISTRY_ID = testnet_package_ids["REGISTRY_ID"]
             self.DEEP_TREASURY_ID = testnet_package_ids["DEEP_TREASURY_ID"]
             self.MARGIN_PACKAGE_ID = testnet_package_ids["MARGIN_PACKAGE_ID"]
+            self.MARGIN_1 = mainnet_package_ids["MARGIN_1"]
+            self.MARGIN_REGISTRY_ID = mainnet_package_ids["MARGIN_REGISTRY_ID"]
             self.LIQUIDATION_PACKAGE_ID = testnet_package_ids["LIQUIDATION_PACKAGE_ID"]
 
         self.balance_manager = BalanceManagerContract(self)

@@ -262,6 +262,50 @@ class MarginTPSLContract:
 
         return tx  
 
+    def execute_conditional_orders(
+        self,
+        manager_address: str,
+        pool_key: str,
+        max_orders_to_execute: int,
+        tx: SuiTransaction,
+    ) -> SuiTransaction:
+        """
+        Execute conditional orders that have been triggered.
+        Permissionless — anyone can call this. After the inner fill loop, the
+        manager's post-trade risk_ratio is checked against min_borrow_risk_ratio;
+        if any triggered fill breaches that floor, the whole txn aborts.
+
+        :param manager_address: The address of the margin manager
+        :param pool_key: The key to identify the pool (e.g., 'SUI_USDC')
+        :param max_orders_to_execute: Maximum number of orders to execute in this call
+        :param tx: SuiTransaction object
+        :return: SuiTransaction object
+        """
+
+        pool = self.__config.get_pool(pool_key)
+        base_coin = self.__config.get_coin(pool["base_coin"])
+        quote_coin = self.__config.get_coin(pool["quote_coin"])
+        base_margin_pool = self.__config.get_margin_pool(pool["base_coin"])
+        quote_margin_pool = self.__config.get_margin_pool(pool["quote_coin"])
+
+        tx.move_call(
+            target=f"{self.__config.MARGIN_PACKAGE_ID}::margin_manager::execute_conditional_orders_v2",
+            arguments=[
+                ObjectID(manager_address),
+                ObjectID(pool["address"]),
+                ObjectID(base_margin_pool["address"]),
+                ObjectID(quote_margin_pool["address"]),
+                ObjectID(base_coin["price_info_object_id"]),
+                ObjectID(quote_coin["price_info_object_id"]),
+                ObjectID(self.__config.MARGIN_REGISTRY_ID),
+                SuiU64(max_orders_to_execute),
+                CLOCK,
+            ],
+            type_arguments=[base_coin["type"], quote_coin["type"]],
+        )
+
+        return tx
+
     # Read-only methods
     def conditional_order_ids(
         self, pool_key: str, margin_manager_id: str, tx: SuiTransaction
