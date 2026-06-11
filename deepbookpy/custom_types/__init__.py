@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from enum import Enum
 
 
@@ -78,6 +78,36 @@ class PlaceMarketOrderParams:
 
 
 @dataclass
+class PendingLimitOrderParams:
+    client_order_id: str
+    price: float
+    quantity: float
+    is_bid: bool
+    order_type: Optional[OrderType] = None
+    self_matching_option: Optional[SelfMatchingOptions] = None
+    pay_with_deep: Optional[bool] = None
+    expire_timestamp: Optional[Union[int, float]] = None
+
+
+@dataclass
+class PendingMarketOrderParams:
+    client_order_id: str
+    quantity: float
+    is_bid: bool
+    self_matching_option: Optional[SelfMatchingOptions] = None
+    pay_with_deep: Optional[bool] = None
+
+
+@dataclass
+class AddConditionalOrderParams:
+    margin_manager_key: str
+    conditional_order_id: str
+    trigger_below_price: bool
+    trigger_price: int | float
+    pending_order: Union[PendingLimitOrderParams, PendingMarketOrderParams]
+
+
+@dataclass
 class SwapParams:
     pool_key: str
     amount: float
@@ -96,3 +126,43 @@ class CreatePermissionlessPoolParams:
     lot_size: int
     min_size: int
     deep_coin: Optional["TransactionObjectArgument"] = None
+
+@dataclass
+class MarginManagers:
+    address: str
+    pool_key: str
+
+@dataclass
+class DepositParams:
+    """
+    Parameters for depositing into a margin manager.
+    Either `amount` (int) or `coin` (transaction argument) must be provided, but not both.
+    """
+    manager_key: str
+    amount: Optional[Union[int, float]] = None
+    coin: Optional[Any] = None
+
+    def __post_init__(self):
+        if self.amount is None and self.coin is None:
+            raise ValueError("Either 'amount' or 'coin' must be provided.")
+        if self.amount is not None and self.coin is not None:
+            raise ValueError("Only one of 'amount' or 'coin' can be provided, not both.")    
+        
+@dataclass
+class DepositDuringInitParams:
+    """
+    Parameters for depositing during margin manager initialization.
+    Either `amount` (int) or `coin` (transaction argument) must be provided, but not both.
+    `coin_type` should be a coin key from config (e.g., 'SUI', 'DBUSDC', 'DEEP').
+    """
+    manager: Any
+    pool_key: str
+    coin_type: str
+    amount: Optional[Union[int, float]] = None
+    coin: Optional[Any] = None
+
+    def __post_init__(self):
+        if self.amount is None and self.coin is None:
+            raise ValueError("Either 'amount' or 'coin' must be provided.")
+        if self.amount is not None and self.coin is not None:
+            raise ValueError("Only one of 'amount' or 'coin' can be provided, not both.")
