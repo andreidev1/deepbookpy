@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from enum import Enum
 
 
@@ -131,3 +131,38 @@ class CreatePermissionlessPoolParams:
 class MarginManagers:
     address: str
     pool_key: str
+
+@dataclass
+class DepositParams:
+    """
+    Parameters for depositing into a margin manager.
+    Either `amount` (int) or `coin` (transaction argument) must be provided, but not both.
+    """
+    manager_key: str
+    amount: Optional[Union[int, float]] = None
+    coin: Optional[Any] = None
+
+    def __post_init__(self):
+        if self.amount is None and self.coin is None:
+            raise ValueError("Either 'amount' or 'coin' must be provided.")
+        if self.amount is not None and self.coin is not None:
+            raise ValueError("Only one of 'amount' or 'coin' can be provided, not both.")    
+        
+@dataclass
+class DepositDuringInitParams:
+    """
+    Parameters for depositing during margin manager initialization.
+    Either `amount` (int) or `coin` (transaction argument) must be provided, but not both.
+    `coin_type` should be a coin key from config (e.g., 'SUI', 'DBUSDC', 'DEEP').
+    """
+    manager: Any
+    pool_key: str
+    coin_type: str
+    amount: Optional[Union[int, float]] = None
+    coin: Optional[Any] = None
+
+    def __post_init__(self):
+        if self.amount is None and self.coin is None:
+            raise ValueError("Either 'amount' or 'coin' must be provided.")
+        if self.amount is not None and self.coin is not None:
+            raise ValueError("Only one of 'amount' or 'coin' can be provided, not both.")
